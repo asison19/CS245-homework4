@@ -152,9 +152,7 @@ public class MainStage extends Application {
         label.setStyle("-fx-font-size: 18px; -fx-font-weight: bold");
 
         Button addButton = new Button("Add Shape");
-        addButton.setOnAction(e -> {
-            // TODO
-        });
+        addButton.setPadding(new Insets(5, 50, 5, 50));
 
         Label shapeLabel = new Label("Shape: ");
         Label xLabel = new Label("X Position: ");
@@ -186,7 +184,8 @@ public class MainStage extends Application {
         VBox vbox = new VBox(20, label,
                 new HBox(20, shapeLabel, shapes),
                 new HBox(20, xLabel, xPosition),
-                new HBox(20, yLabel, yPosition));
+                new HBox(20, yLabel, yPosition),
+                addButton);
         vbox.setPadding(new Insets(30));
         vbox.setAlignment(Pos.TOP_CENTER);
 
@@ -199,7 +198,8 @@ public class MainStage extends Application {
                         new HBox(20, shapeLabel, shapes),
                         new HBox(20, xLabel, xPosition),
                         new HBox(20, yLabel, yPosition),
-                        new HBox(20, radiusLabel, shapeRadius));
+                        new HBox(20, radiusLabel, shapeRadius),
+                        addButton);
             }
             else if (n.equals(1)) {
                 vbox.getChildren().addAll(label,
@@ -208,7 +208,8 @@ public class MainStage extends Application {
                         new HBox(20, yLabel, yPosition),
                         new HBox(20, widthLabel, shapeWidth),
                         new HBox(20, lengthLabel, shapeLength),
-                        new HBox(20, heightLabel, shapeHeight));
+                        new HBox(20, heightLabel, shapeHeight),
+                        addButton);
             }
             else if (n.equals(2)) {
                 vbox.getChildren().addAll(label,
@@ -216,15 +217,52 @@ public class MainStage extends Application {
                         new HBox(20, xLabel, xPosition),
                         new HBox(20, yLabel, yPosition),
                         new HBox(20, radiusLabel, shapeRadius),
-                        new HBox(20, heightLabel, shapeHeight));
+                        new HBox(20, heightLabel, shapeHeight),
+                        addButton);
             }
             vbox.setPadding(new Insets(30));
             vbox.setAlignment(Pos.TOP_CENTER);
+        });
+
+        // Submit shape details
+        addButton.setOnAction(e -> {
+            int selectedShape = shapes.getSelectionModel().getSelectedIndex();
+            double x = Double.parseDouble(xPosition.getText());
+            double y = Double.parseDouble(yPosition.getText());
+            double width, length, radius, height;
+
+            if (selectedShape == 0) {
+                radius = Integer.parseInt(shapeRadius.getText());
+                Sphere sphere = new Sphere(x, y, radius);
+            }
+            else if (selectedShape == 1) {
+                width = Double.parseDouble(shapeWidth.getText());
+                length = Double.parseDouble(shapeLength.getText());
+                height = Double.parseDouble(shapeLength.getText());
+                homework4.Box box = new homework4.Box(x, y, height, width, length);    // TODO
+            }
+            else if (selectedShape == 2) {
+                radius = Integer.parseInt(shapeRadius.getText());
+                height = Integer.parseInt(shapeLength.getText());
+                Cylinder cylinder = new Cylinder(x, y, radius, height);
+            }
+            else {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setHeaderText("No Shape Selected");
+                alert.setContentText("Please select a shape.");
+                alert.show();
+            }
         });
 
         Scene scene = new Scene(vbox, 375, 500);
         stage.setScene(scene);
         stage.setTitle("Add a Shape");
         stage.show();
+    }
+
+    public boolean createShape(Shape shape) {
+        // TODO Change Shapes class to 3DShapes object
+        return false;
     }
 }
