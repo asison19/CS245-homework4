@@ -151,6 +151,11 @@ public class MainStage extends Application {
         Label label = new Label("Add a Shape");
         label.setStyle("-fx-font-size: 18px; -fx-font-weight: bold");
 
+        Button addButton = new Button("Add Shape");
+        addButton.setOnAction(e -> {
+            // TODO
+        });
+
         Label shapeLabel = new Label("Shape: ");
         Label xLabel = new Label("X Position: ");
         Label yLabel = new Label("Y Position: ");
@@ -173,67 +178,51 @@ public class MainStage extends Application {
         Label radiusLabel = new Label("Radius: ");
         TextField shapeRadius = new TextField();
 
+
         // ChoiceBox with list of shapes
         ChoiceBox<String> shapes = new ChoiceBox<>();
         shapes.getItems().addAll("Sphere", "Box", "Cylinder");
 
-        // Different scenes for different shapes
         VBox vbox = new VBox(20, label,
                 new HBox(20, shapeLabel, shapes),
                 new HBox(20, xLabel, xPosition),
                 new HBox(20, yLabel, yPosition));
-
         vbox.setPadding(new Insets(30));
-        vbox.setAlignment(Pos.CENTER);
+        vbox.setAlignment(Pos.TOP_CENTER);
 
-        VBox vbox1 = new VBox(20, label,
-                new HBox(20, shapeLabel, shapes),
-                new HBox(20, xLabel, xPosition),
-                new HBox(20, yLabel, yPosition),
-                new HBox(20, radiusLabel, shapeRadius));
-        vbox1.setPadding(new Insets(30));
-        vbox1.setAlignment(Pos.CENTER);
-
-        VBox vbox2 = new VBox(20, label,
-                new HBox(20, shapeLabel, shapes),
-                new HBox(20, xLabel, xPosition),
-                new HBox(20, yLabel, yPosition),
-                new HBox(20, widthLabel, shapeWidth),
-                new HBox(20, lengthLabel, shapeLength),
-                new HBox(20, heightLabel, shapeHeight));
-        vbox2.setPadding(new Insets(30));
-        vbox2.setAlignment(Pos.CENTER);
-
-        VBox vbox3 = new VBox(20, label,
-                new HBox(20, shapeLabel, shapes),
-                new HBox(20, xLabel, xPosition),
-                new HBox(20, yLabel, yPosition),
-                new HBox(20, radiusLabel, shapeRadius),
-                new HBox(20, heightLabel, shapeHeight));
-        vbox3.setPadding(new Insets(30));
-        vbox3.setAlignment(Pos.CENTER);
 
         // Shows specific scenes depending on item selected in shape ChoiceBox
         shapes.getSelectionModel().selectedIndexProperty().addListener((source, o, n) -> {
-            String selectedShape = shapes.getSelectionModel().getSelectedItem();
-            if (selectedShape.equals("Sphere")) {
-                Scene scene1 = new Scene(vbox1);
-                stage.setScene(scene1);
-                stage.show();
+            vbox.getChildren().clear();
+            if (n.equals(0)) {
+                vbox.getChildren().addAll(label,
+                        new HBox(20, shapeLabel, shapes),
+                        new HBox(20, xLabel, xPosition),
+                        new HBox(20, yLabel, yPosition),
+                        new HBox(20, radiusLabel, shapeRadius));
             }
-            else if (selectedShape.equals("Box")) {
-                Scene scene2 = new Scene(vbox2);
-                stage.setScene(scene2);
-                stage.show();
+            else if (n.equals(1)) {
+                vbox.getChildren().addAll(label,
+                        new HBox(20, shapeLabel, shapes),
+                        new HBox(20, xLabel, xPosition),
+                        new HBox(20, yLabel, yPosition),
+                        new HBox(20, widthLabel, shapeWidth),
+                        new HBox(20, lengthLabel, shapeLength),
+                        new HBox(20, heightLabel, shapeHeight));
             }
-            else if (selectedShape.equals("Cylinder")) {
-                Scene scene3 = new Scene(vbox3);
-                stage.setScene(scene3);
-                stage.show();
+            else if (n.equals(2)) {
+                vbox.getChildren().addAll(label,
+                        new HBox(20, shapeLabel, shapes),
+                        new HBox(20, xLabel, xPosition),
+                        new HBox(20, yLabel, yPosition),
+                        new HBox(20, radiusLabel, shapeRadius),
+                        new HBox(20, heightLabel, shapeHeight));
             }
+            vbox.setPadding(new Insets(30));
+            vbox.setAlignment(Pos.TOP_CENTER);
         });
 
-        Scene scene = new Scene(vbox,  375, 500);
+        Scene scene = new Scene(vbox, 375, 500);
         stage.setScene(scene);
         stage.setTitle("Add a Shape");
         stage.show();
