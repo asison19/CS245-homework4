@@ -13,6 +13,12 @@
 
 package homework4;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Scanner;
+
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -44,6 +50,7 @@ public class MainStage extends Application {
     // SubScene that has the shapes inside in 3D
     private Pane pane;
     private SubScene subScene;
+    private ArrayList<Shape> shapes;
     private double subSceneWidth;
     private double subSceneHeight;
 
@@ -59,7 +66,13 @@ public class MainStage extends Application {
     // Button to add the shape into the subscene
     private Button addShapeButton;
 
-    public static void main(String[] args) { launch(args); }
+    public static void main(String[] args) 
+    { 
+    	//launch(args); 
+    	MainStage MS = new MainStage();
+    	MS.save();
+    	MS.load();
+    }
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -231,22 +244,26 @@ public class MainStage extends Application {
             double y = Double.parseDouble(yPosition.getText());
             double width, length, radius, height;
 
-            if (selectedShape == 0) {
-                radius = Integer.parseInt(shapeRadius.getText());
+            if (selectedShape == 0) 
+            {
+                radius = Double.parseDouble(shapeRadius.getText());
                 Sphere sphere = new Sphere(x, y, radius);
             }
-            else if (selectedShape == 1) {
+            else if (selectedShape == 1) 
+            {
                 width = Double.parseDouble(shapeWidth.getText());
                 length = Double.parseDouble(shapeLength.getText());
                 height = Double.parseDouble(shapeLength.getText());
                 homework4.Box box = new homework4.Box(x, y, height, width, length);    // TODO
             }
-            else if (selectedShape == 2) {
-                radius = Integer.parseInt(shapeRadius.getText());
-                height = Integer.parseInt(shapeLength.getText());
+            else if (selectedShape == 2) 
+            {
+                radius = Double.parseDouble(shapeRadius.getText());
+                height = Double.parseDouble(shapeLength.getText());
                 Cylinder cylinder = new Cylinder(x, y, radius, height);
             }
-            else {
+            else 
+            {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Error");
                 alert.setHeaderText("No Shape Selected");
@@ -264,5 +281,39 @@ public class MainStage extends Application {
     public boolean createShape(Shape shape) {
         // TODO Change Shapes class to 3DShapes object
         return false;
+    }
+    
+    public void save()
+    {
+    	try
+    	{
+    		PrintWriter writer = new PrintWriter(new File("SaveFile.txt"));
+    		writer.append("Hello World");
+    		writer.close();
+    		
+    	}
+    	catch(FileNotFoundException FNFE)
+    	{
+    		
+    	}
+    }
+    
+    public void load()
+    {
+    	try
+    	{
+    		Scanner reader = new Scanner(new File("SaveFile.txt"));
+    		String line;
+    		while(reader.hasNext())
+    		{
+    			line = reader.nextLine();
+    			System.out.println(line);
+    		}
+    		
+    	}
+    	catch(FileNotFoundException FNFE)
+    	{
+    		
+    	}
     }
 }
