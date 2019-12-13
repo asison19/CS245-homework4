@@ -37,7 +37,7 @@ import javafx.scene.shape.Sphere;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
 import javafx.stage.Stage;
-
+import javafx.scene.paint.Color;
 
 public class MainStage extends Application {
 
@@ -51,7 +51,8 @@ public class MainStage extends Application {
     private Slider rotateSlider;
     private TextField translateXTextField, translateYTextField, translateZTextField;
     private Slider scaleSlider;
-    private TextField changeColorTextField;
+    // private TextField changeColorTextField;
+    final ColorPicker colorPicker = new ColorPicker();
 
     // SubScene that has the shapes inside in 3D
     private Pane pane;
@@ -76,8 +77,8 @@ public class MainStage extends Application {
     private double width, height, depth, radius;
     private boolean selected = false;
 
-    public static void main(String[] args) 
-    { 
+    public static void main(String[] args)
+    {
     	launch(args);
     	MainStage MS = new MainStage();
     	MS.save();
@@ -108,11 +109,12 @@ public class MainStage extends Application {
         rotateSlider.setShowTickMarks(true);
         scaleSlider.setShowTickMarks(true);
 
+
         translateXTextField = new TextField();
         translateYTextField = new TextField();
         translateZTextField = new TextField();
 
-        changeColorTextField = new TextField();
+        // changeColorTextField = new TextField();
 
         controlBox.setStyle("-fx-background-color: lightsteelblue");
         controlBox.setPadding(new Insets(35, 25, 20, 25));
@@ -120,11 +122,11 @@ public class MainStage extends Application {
 
         // Disable controls when no shape is selected
         if (!selected) {
-            rotateSlider.isDisabled();
-            scaleSlider.isDisabled();
-            translateXTextField.isDisabled();
-            translateYTextField.isDisabled();
-            translateZTextField.isDisabled();
+            rotateSlider.setDisable(true);
+            scaleSlider.setDisable(true);
+            translateXTextField.setDisable(true);
+            translateYTextField.setDisable(true);
+            translateZTextField.setDisable(true);
         }
 
         // sub-scene that contains the shapes (original: 800, 600)
@@ -132,6 +134,10 @@ public class MainStage extends Application {
         subScene = new SubScene(pane, subSceneWidth = 700, subSceneHeight = 500);
 
         pane.setStyle("-fx-border-style: solid; -fx-border-width: 2px; -fx-border-color: lightgray; -fx-background-color: white");
+
+        colorPicker.setOnAction(e -> {
+            pane.setStyle("-fx-border-style: solid; -fx-border-width: 2px; -fx-border-color: lightgray; -fx-background-color: #" + colorToHex(colorPicker.getValue()));
+        });
 
         // menu bar and its items
         menuBar = new MenuBar();
@@ -155,7 +161,8 @@ public class MainStage extends Application {
                 new HBox(25, translateYLabel, translateYTextField),
                 new HBox(25, translateZLabel, translateZTextField),
                 new HBox(10, scaleLabel, scaleSlider),
-                new HBox(5, changeColorLabel, changeColorTextField) );
+                new HBox(5, changeColorLabel, colorPicker) );
+                // new HBox(5, changeColorLabel, changeColorTextField) );
 
         controlBox.setMargin(controlBoxLabel, new Insets(0, 0, 15, 0));
         controlBox.setSpacing(25);
@@ -272,7 +279,7 @@ public class MainStage extends Application {
             vbox.setAlignment(Pos.TOP_CENTER);
         });
 
-        // Submit shape details
+        // Submit shape details // TODO decide what we're doing for shapes, either custom classes containing JavaFX or just JavaFXs
         addButton.setOnAction(e -> {
             int selectedShape = shapes.getSelectionModel().getSelectedIndex();
             double x = Double.parseDouble(xPosition.getText());
@@ -283,17 +290,16 @@ public class MainStage extends Application {
                 radius = Double.parseDouble(shapeRadius.getText());
                 Sphere sphere = new Sphere(radius);
 
-
                 translate(sphere, x, y, z);
                 homework4.Sphere sphere_ = new homework4.Sphere(x, y, radius); // TODO remove custom shapes?
             }
-            else if (selectedShape == 1) 
+            else if (selectedShape == 1)
             {
                 width = Double.parseDouble(shapeWidth.getText());
                 depth = Double.parseDouble(shapeLength.getText());
                 height = Double.parseDouble(shapeLength.getText());
-                Box box = new Box(width, height, depth);
-                translate(box, x, y, z);
+                Box box_ = new Box(width, height, depth);
+                translate(box_, x, y, z);
             }
             else if (selectedShape == 2) {
                 radius = Double.parseDouble(shapeRadius.getText());
@@ -302,7 +308,7 @@ public class MainStage extends Application {
                 translate(cylinder, x, y, z);
                 homework4.Cylinder cylinder_ = new homework4.Cylinder(x, y, radius, height);  // TODO remove custom shapes?
             }
-            else 
+            else
             {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Error");
@@ -331,7 +337,7 @@ public class MainStage extends Application {
     private void scale(Shape3D shape, double xFactor, double yFactor, double zFactor) {
 
     }
-    
+
     public void save()
     {
     	try
@@ -339,14 +345,14 @@ public class MainStage extends Application {
     		PrintWriter writer = new PrintWriter(new File("SaveFile.txt"));
     		writer.append("Hello World");
     		writer.close();
-    		
+
     	}
     	catch(FileNotFoundException FNFE)
     	{
-    		
+
     	}
     }
-    
+
     public void load()
     {
     	try
@@ -358,11 +364,42 @@ public class MainStage extends Application {
     			line = reader.nextLine();
     			System.out.println(line);
     		}
-    		
+
     	}
     	catch(FileNotFoundException FNFE)
     	{
-    		
+
     	}
+    }
+
+    String colorToHex(Color color) {
+        String hex1;
+        String hex2;
+
+        hex1 = Integer.toHexString(color.hashCode()).toUpperCase();
+
+        switch (hex1.length()) {
+            case 2:
+                hex2 = "000000";
+                break;
+            case 3:
+                hex2 = String.format("00000%s", hex1.substring(0,1));
+                break;
+            case 4:
+                hex2 = String.format("0000%s", hex1.substring(0,2));
+                break;
+            case 5:
+                hex2 = String.format("000%s", hex1.substring(0,3));
+                break;
+            case 6:
+                hex2 = String.format("00%s", hex1.substring(0,4));
+                break;
+            case 7:
+                hex2 = String.format("0%s", hex1.substring(0,5));
+                break;
+            default:
+                hex2 = hex1.substring(0, 6);
+        }
+        return hex2;
     }
 }
