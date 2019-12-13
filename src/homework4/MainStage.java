@@ -13,6 +13,12 @@
 
 package homework4;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Scanner;
+
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Point3D;
@@ -50,6 +56,7 @@ public class MainStage extends Application {
     // SubScene that has the shapes inside in 3D
     private Pane pane;
     private SubScene subScene;
+    private ArrayList<Shape> shapes;
     private double subSceneWidth;
     private double subSceneHeight;
 
@@ -69,7 +76,13 @@ public class MainStage extends Application {
     private double width, height, depth, radius;
     private boolean selected = false;
 
-    public static void main(String[] args) { launch(args); }
+    public static void main(String[] args) 
+    { 
+    	launch(args);
+    	MainStage MS = new MainStage();
+    	MS.save();
+    	MS.load();
+    }
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -267,11 +280,15 @@ public class MainStage extends Application {
             double z = Double.parseDouble(zPosition.getText());
 
             if (selectedShape == 0) {
-                radius = Integer.parseInt(shapeRadius.getText());
+                radius = Double.parseDouble(shapeRadius.getText());
                 Sphere sphere = new Sphere(radius);
+
+
                 translate(sphere, x, y, z);
+                homework4.Sphere sphere_ = new homework4.Sphere(x, y, radius); // TODO remove custom shapes?
             }
-            else if (selectedShape == 1) {
+            else if (selectedShape == 1) 
+            {
                 width = Double.parseDouble(shapeWidth.getText());
                 depth = Double.parseDouble(shapeLength.getText());
                 height = Double.parseDouble(shapeLength.getText());
@@ -279,12 +296,14 @@ public class MainStage extends Application {
                 translate(box, x, y, z);
             }
             else if (selectedShape == 2) {
-                radius = Integer.parseInt(shapeRadius.getText());
-                height = Integer.parseInt(shapeLength.getText());
+                radius = Double.parseDouble(shapeRadius.getText());
+                height = Double.parseDouble(shapeLength.getText());
                 Cylinder cylinder = new Cylinder(radius, height);
                 translate(cylinder, x, y, z);
+                homework4.Cylinder cylinder_ = new homework4.Cylinder(x, y, radius, height);  // TODO remove custom shapes?
             }
-            else {
+            else 
+            {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Error");
                 alert.setHeaderText("No Shape Selected");
@@ -311,5 +330,39 @@ public class MainStage extends Application {
 
     private void scale(Shape3D shape, double xFactor, double yFactor, double zFactor) {
 
+    }
+    
+    public void save()
+    {
+    	try
+    	{
+    		PrintWriter writer = new PrintWriter(new File("SaveFile.txt"));
+    		writer.append("Hello World");
+    		writer.close();
+    		
+    	}
+    	catch(FileNotFoundException FNFE)
+    	{
+    		
+    	}
+    }
+    
+    public void load()
+    {
+    	try
+    	{
+    		Scanner reader = new Scanner(new File("SaveFile.txt"));
+    		String line;
+    		while(reader.hasNext())
+    		{
+    			line = reader.nextLine();
+    			System.out.println(line);
+    		}
+    		
+    	}
+    	catch(FileNotFoundException FNFE)
+    	{
+    		
+    	}
     }
 }

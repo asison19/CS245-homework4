@@ -33,6 +33,5 @@ public class Shape
 	public String print()
 	{
 		return null;
-		
 	}
 }
