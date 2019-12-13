@@ -15,6 +15,7 @@ package homework4;
 
 import javafx.application.Application;
 import javafx.geometry.Insets;
+import javafx.geometry.Point3D;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.SubScene;
@@ -24,6 +25,11 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Box;
+import javafx.scene.shape.Cylinder;
+import javafx.scene.shape.Shape3D;
+import javafx.scene.shape.Sphere;
+import javafx.scene.transform.Rotate;
+import javafx.scene.transform.Translate;
 import javafx.stage.Stage;
 
 
@@ -35,9 +41,9 @@ public class MainStage extends Application {
     // control box in the right side for shape transformations inside the subscene.
     // Shape transformations include: Rotate, Translate, Scale, and Change Colour.
     private VBox controlBox;
-    private Label controlBoxLabel, rotateLabel, translateXLabel, translateYLabel, scaleLabel, changeColorLabel;
+    private Label controlBoxLabel, rotateLabel, translateXLabel, translateYLabel, translateZLabel, scaleLabel, changeColorLabel;
     private Slider rotateSlider;
-    private TextField translateXTextField, translateYTextField;
+    private TextField translateXTextField, translateYTextField, translateZTextField;
     private Slider scaleSlider;
     private TextField changeColorTextField;
 
@@ -59,6 +65,10 @@ public class MainStage extends Application {
     // Button to add the shape into the subscene
     private Button addShapeButton;
 
+    // Shape attributes
+    private double width, height, depth, radius;
+    private boolean selected = false;
+
     public static void main(String[] args) { launch(args); }
 
     @Override
@@ -69,22 +79,40 @@ public class MainStage extends Application {
         // layout that is the root of everything else
         borderPane = new BorderPane();
 
-        // Control box and its controls and labels
+        // Control box and its labels
         controlBox = new VBox(20);
         controlBoxLabel = new Label("Shape Editor");
         rotateLabel = new Label("Rotate: ");
-        translateXLabel = new Label("Translate X:");
-        translateYLabel = new Label("Translate Y:");
+        translateXLabel = new Label("Translate X: ");
+        translateYLabel = new Label("Translate Y: ");
+        translateZLabel = new Label("Translate Z: ");
         scaleLabel = new Label("Change Scale: ");
         changeColorLabel = new Label("Change Colour: ");
-        rotateSlider = new Slider();
+
+        // Sliders
+        rotateSlider = new Slider(0, 359, 0);
+        scaleSlider = new Slider(0.5, 2.0, 1.0);
+        rotateSlider.setShowTickMarks(true);
+        scaleSlider.setShowTickMarks(true);
+
         translateXTextField = new TextField();
         translateYTextField = new TextField();
-        scaleSlider = new Slider();
+        translateZTextField = new TextField();
+
         changeColorTextField = new TextField();
 
         controlBox.setStyle("-fx-background-color: lightsteelblue");
         controlBox.setPadding(new Insets(35, 25, 20, 25));
+
+
+        // Disable controls when no shape is selected
+        if (!selected) {
+            rotateSlider.isDisabled();
+            scaleSlider.isDisabled();
+            translateXTextField.isDisabled();
+            translateYTextField.isDisabled();
+            translateZTextField.isDisabled();
+        }
 
         // sub-scene that contains the shapes (original: 800, 600)
         pane = new Pane(new Box());
@@ -112,6 +140,7 @@ public class MainStage extends Application {
         controlBox.getChildren().addAll(new HBox(40, rotateLabel, rotateSlider),
                 new HBox(25, translateXLabel, translateXTextField),
                 new HBox(25, translateYLabel, translateYTextField),
+                new HBox(25, translateZLabel, translateZTextField),
                 new HBox(10, scaleLabel, scaleSlider),
                 new HBox(5, changeColorLabel, changeColorTextField) );
 
@@ -157,9 +186,11 @@ public class MainStage extends Application {
         Label shapeLabel = new Label("Shape: ");
         Label xLabel = new Label("X Position: ");
         Label yLabel = new Label("Y Position: ");
+        Label zLabel = new Label("Z Position: ");
 
         TextField xPosition = new TextField();
         TextField yPosition = new TextField();
+        TextField zPosition = new TextField();
 
         // For boxes only
         Label widthLabel = new Label("Width: ");
@@ -185,6 +216,7 @@ public class MainStage extends Application {
                 new HBox(20, shapeLabel, shapes),
                 new HBox(20, xLabel, xPosition),
                 new HBox(20, yLabel, yPosition),
+                new HBox(20, zLabel, zPosition),
                 addButton);
         vbox.setPadding(new Insets(30));
         vbox.setAlignment(Pos.TOP_CENTER);
@@ -198,6 +230,7 @@ public class MainStage extends Application {
                         new HBox(20, shapeLabel, shapes),
                         new HBox(20, xLabel, xPosition),
                         new HBox(20, yLabel, yPosition),
+                        new HBox(20, zLabel, zPosition),
                         new HBox(20, radiusLabel, shapeRadius),
                         addButton);
             }
@@ -206,6 +239,7 @@ public class MainStage extends Application {
                         new HBox(20, shapeLabel, shapes),
                         new HBox(20, xLabel, xPosition),
                         new HBox(20, yLabel, yPosition),
+                        new HBox(20, zLabel, zPosition),
                         new HBox(20, widthLabel, shapeWidth),
                         new HBox(20, lengthLabel, shapeLength),
                         new HBox(20, heightLabel, shapeHeight),
@@ -216,6 +250,7 @@ public class MainStage extends Application {
                         new HBox(20, shapeLabel, shapes),
                         new HBox(20, xLabel, xPosition),
                         new HBox(20, yLabel, yPosition),
+                        new HBox(20, zLabel, zPosition),
                         new HBox(20, radiusLabel, shapeRadius),
                         new HBox(20, heightLabel, shapeHeight),
                         addButton);
@@ -229,22 +264,25 @@ public class MainStage extends Application {
             int selectedShape = shapes.getSelectionModel().getSelectedIndex();
             double x = Double.parseDouble(xPosition.getText());
             double y = Double.parseDouble(yPosition.getText());
-            double width, length, radius, height;
+            double z = Double.parseDouble(zPosition.getText());
 
             if (selectedShape == 0) {
                 radius = Integer.parseInt(shapeRadius.getText());
-                Sphere sphere = new Sphere(x, y, radius);
+                Sphere sphere = new Sphere(radius);
+                translate(sphere, x, y, z);
             }
             else if (selectedShape == 1) {
                 width = Double.parseDouble(shapeWidth.getText());
-                length = Double.parseDouble(shapeLength.getText());
+                depth = Double.parseDouble(shapeLength.getText());
                 height = Double.parseDouble(shapeLength.getText());
-                homework4.Box box = new homework4.Box(x, y, height, width, length);    // TODO
+                Box box = new Box(width, height, depth);
+                translate(box, x, y, z);
             }
             else if (selectedShape == 2) {
                 radius = Integer.parseInt(shapeRadius.getText());
                 height = Integer.parseInt(shapeLength.getText());
-                Cylinder cylinder = new Cylinder(x, y, radius, height);
+                Cylinder cylinder = new Cylinder(radius, height);
+                translate(cylinder, x, y, z);
             }
             else {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -261,8 +299,17 @@ public class MainStage extends Application {
         stage.show();
     }
 
-    public boolean createShape(Shape shape) {
-        // TODO Change Shapes class to 3DShapes object
-        return false;
+    private void translate(Shape3D shape, double x, double y, double z) {
+        Translate translate = new Translate(x, y, z);
+        shape.getTransforms().add(translate);
+    }
+
+    private void rotate(Shape3D shape, double angle, Point3D axisOfRotation) {
+        Rotate rotate = new Rotate(angle, axisOfRotation);
+        shape.getTransforms().add(rotate);
+    }
+
+    private void scale(Shape3D shape, double xFactor, double yFactor, double zFactor) {
+
     }
 }
