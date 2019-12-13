@@ -16,7 +16,6 @@ package homework4;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.Scanner;
 
 import javafx.application.Application;
@@ -57,7 +56,6 @@ public class MainStage extends Application {
     // SubScene that has the shapes inside in 3D
     private Pane pane;
     private SubScene subScene;
-    private ArrayList<Shape> shapes;
     private double subSceneWidth;
     private double subSceneHeight;
 
@@ -79,10 +77,10 @@ public class MainStage extends Application {
 
     public static void main(String[] args)
     {
-    	launch(args);
-    	MainStage MS = new MainStage();
-    	MS.save();
-    	MS.load();
+        launch(args);
+        MainStage MS = new MainStage();
+        MS.save();
+        MS.load();
     }
 
     @Override
@@ -101,7 +99,7 @@ public class MainStage extends Application {
         translateYLabel = new Label("Translate Y: ");
         translateZLabel = new Label("Translate Z: ");
         scaleLabel = new Label("Change Scale: ");
-        changeColorLabel = new Label("Change Colour: ");
+        changeColorLabel = new Label("Change Background Color: ");
 
         // Sliders
         rotateSlider = new Slider(0, 359, 0);
@@ -109,12 +107,10 @@ public class MainStage extends Application {
         rotateSlider.setShowTickMarks(true);
         scaleSlider.setShowTickMarks(true);
 
-
+        // TextFields
         translateXTextField = new TextField();
         translateYTextField = new TextField();
         translateZTextField = new TextField();
-
-        // changeColorTextField = new TextField();
 
         controlBox.setStyle("-fx-background-color: lightsteelblue");
         controlBox.setPadding(new Insets(35, 25, 20, 25));
@@ -162,7 +158,7 @@ public class MainStage extends Application {
                 new HBox(25, translateZLabel, translateZTextField),
                 new HBox(10, scaleLabel, scaleSlider),
                 new HBox(5, changeColorLabel, colorPicker) );
-                // new HBox(5, changeColorLabel, changeColorTextField) );
+        // new HBox(5, changeColorLabel, changeColorTextField) );
 
         controlBox.setMargin(controlBoxLabel, new Insets(0, 0, 15, 0));
         controlBox.setSpacing(25);
@@ -289,24 +285,21 @@ public class MainStage extends Application {
             if (selectedShape == 0) {
                 radius = Double.parseDouble(shapeRadius.getText());
                 Sphere sphere = new Sphere(radius);
-
                 translate(sphere, x, y, z);
-                homework4.Sphere sphere_ = new homework4.Sphere(x, y, radius); // TODO remove custom shapes?
             }
             else if (selectedShape == 1)
             {
                 width = Double.parseDouble(shapeWidth.getText());
                 depth = Double.parseDouble(shapeLength.getText());
                 height = Double.parseDouble(shapeLength.getText());
-                Box box_ = new Box(width, height, depth);
-                translate(box_, x, y, z);
+                Box box = new Box(width, height, depth);
+                translate(box, x, y, z);
             }
             else if (selectedShape == 2) {
                 radius = Double.parseDouble(shapeRadius.getText());
                 height = Double.parseDouble(shapeLength.getText());
                 Cylinder cylinder = new Cylinder(radius, height);
                 translate(cylinder, x, y, z);
-                homework4.Cylinder cylinder_ = new homework4.Cylinder(x, y, radius, height);  // TODO remove custom shapes?
             }
             else
             {
@@ -340,36 +333,36 @@ public class MainStage extends Application {
 
     public void save()
     {
-    	try
-    	{
-    		PrintWriter writer = new PrintWriter(new File("SaveFile.txt"));
-    		writer.append("Hello World");
-    		writer.close();
+        try
+        {
+            PrintWriter writer = new PrintWriter(new File("SaveFile.txt"));
+            writer.append("Hello World");
+            writer.close();
 
-    	}
-    	catch(FileNotFoundException FNFE)
-    	{
+        }
+        catch(FileNotFoundException FNFE)
+        {
 
-    	}
+        }
     }
 
     public void load()
     {
-    	try
-    	{
-    		Scanner reader = new Scanner(new File("SaveFile.txt"));
-    		String line;
-    		while(reader.hasNext())
-    		{
-    			line = reader.nextLine();
-    			System.out.println(line);
-    		}
+        try
+        {
+            Scanner reader = new Scanner(new File("SaveFile.txt"));
+            String line;
+            while(reader.hasNext())
+            {
+                line = reader.nextLine();
+                System.out.println(line);
+            }
 
-    	}
-    	catch(FileNotFoundException FNFE)
-    	{
+        }
+        catch(FileNotFoundException FNFE)
+        {
 
-    	}
+        }
     }
 
     String colorToHex(Color color) {
