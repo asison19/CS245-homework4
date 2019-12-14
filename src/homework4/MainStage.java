@@ -33,6 +33,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Material;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
 import javafx.scene.shape.Cylinder;
@@ -61,6 +62,8 @@ public class MainStage extends Application {
     final ColorPicker colorPicker = new ColorPicker();
     final ColorPicker bgColorPicker = new ColorPicker();
 
+    private Shape3D thisShape; // TODO still not sure what this is for
+
     // SubScene that has the shapes inside in 3D
     private Pane pane;
     private SubScene subScene;
@@ -82,6 +85,9 @@ public class MainStage extends Application {
     // Shape attributes
     private double width, height, depth, radius;
     private boolean selected = false;
+    private Shape3D selectedShape; // this is the selected shape
+    private Material selectedShapeMaterial; // this is the selecte shape's material
+
 
     public static void main(String[] args)
     {
@@ -318,6 +324,7 @@ public class MainStage extends Application {
                 translate(sphere, x, y, z);
                 changeColor(sphere);
                 pane.getChildren().add(sphere);
+                changeProperties(sphere);
                 stage.close();
             }
             else if (selectedShape == 1)
@@ -329,6 +336,7 @@ public class MainStage extends Application {
                 translate(box, x, y, z);
                 changeColor(box);
                 pane.getChildren().add(box);
+                changeProperties(box);
                 stage.close();
             }
             else if (selectedShape == 2) {
@@ -338,6 +346,7 @@ public class MainStage extends Application {
                 translate(cylinder, x, y, z);
                 changeColor(cylinder);
                 pane.getChildren().add(cylinder);
+                changeProperties(cylinder);
                 stage.close();
             }
             else
@@ -356,15 +365,55 @@ public class MainStage extends Application {
         stage.show();
     }
 
-    private void changeProperties(Shape3D shape) {
+    private Shape3D changeProperties(Shape3D shape) {
+
+        /********* Select the topmost shape in the pane inside the subscene *********/
         shape.setOnMousePressed(e -> {
-            selected = true;
 
+            // if this was selected already, unselect it
+            if(shape.equals(selectedShape)) {
+                shape.setMaterial(selectedShapeMaterial);
+
+                selectedShape = null;
+                selectedShapeMaterial = null;
+
+                disableControls(true);
+                return;
+            }
+
+            // the previous selected shape should be changed back, should it exist
+            if(selectedShape != null)
+                selectedShape.setMaterial(selectedShapeMaterial);
+
+            // TODO make controls actually change the objects
+            // selected = true;
+            selectedShape = shape;
+            selectedShapeMaterial = shape.getMaterial();
+            disableControls(false); // TODO removed variable selected
+            shape.setMaterial(new PhongMaterial(Color.LIGHTCYAN));
+            thisShape = shape; // TODO not sure what this is for
+            System.out.println("FOO");
         });
 
-        pane.setOnMousePressed(e -> {
+//        pane.setOnMousePressed(e -> { // TODO this gets clicked as well when clicking a shape,
+//                                      // TODO i've changed it so that clicking the previous shape unselects it
+//            selected = false;
+//            selectedShape.setMaterial(selectedShapeMaterial);
+//            enableControls(selected);
+//            shape.setMaterial(new PhongMaterial(colorPicker.getValue()));
+//            System.out.println("Bar");
+//        });
+        System.out.println("added shape");
+        return thisShape;
+    }
 
-        });
+    private void disableControls(boolean boo) {
+        rotateSlider.setDisable(boo);
+        scaleSlider.setDisable(boo);
+        translateXTextField.setDisable(boo);
+        translateYTextField.setDisable(boo);
+        translateZTextField.setDisable(boo);
+        colorPicker.setDisable(boo);
     }
 
     private void translate(Shape3D shape, double x, double y, double z) {
