@@ -1,7 +1,7 @@
 package homework4;
 
 
-public class Sphere extends Shape
+public class Sphere extends ModifiedShape
 {
 	private double radius;
 	

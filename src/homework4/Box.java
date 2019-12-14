@@ -1,6 +1,6 @@
 package homework4;
 
-public class Box extends Shape
+public class Box extends ModifiedShape
 {
 	private double height;
 	private double length;

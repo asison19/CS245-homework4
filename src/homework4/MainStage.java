@@ -1,5 +1,5 @@
 /*
-    Class: Main
+    Class: MainStageStageStageStageStageStage
     Contains main method and the primary stage for the application.
 
     TODO
@@ -29,11 +29,13 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
 import javafx.scene.shape.Cylinder;
 import javafx.scene.shape.Shape3D;
 import javafx.scene.shape.Sphere;
 import javafx.scene.transform.Rotate;
+import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
 import javafx.stage.Stage;
 import javafx.scene.paint.Color;
@@ -46,18 +48,16 @@ public class MainStage extends Application {
     // control box in the right side for shape transformations inside the subscene.
     // Shape transformations include: Rotate, Translate, Scale, and Change Colour.
     private VBox controlBox;
-    private Label controlBoxLabel, rotateLabel, translateXLabel, translateYLabel, translateZLabel, scaleLabel, changeColorLabel;
+    private Label controlBoxLabel, rotateLabel, translateXLabel, translateYLabel, translateZLabel, scaleLabel, changeBgColorLabel, changeColorLabel;
     private Slider rotateSlider;
     private TextField translateXTextField, translateYTextField, translateZTextField;
     private Slider scaleSlider;
-    // private TextField changeColorTextField;
     final ColorPicker colorPicker = new ColorPicker();
+    final ColorPicker bgColorPicker = new ColorPicker();
 
     // SubScene that has the shapes inside in 3D
     private Pane pane;
     private SubScene subScene;
-    private double subSceneWidth;
-    private double subSceneHeight;
 
     // Menu bar that contains "file" menu
     private MenuBar menuBar;
@@ -68,7 +68,7 @@ public class MainStage extends Application {
     private MenuItem saveMenuItem;
     private MenuItem openMenuItem;
 
-    // Button to add the shape into the subscene
+    // Button to add the shape into the sub-scene
     private Button addShapeButton;
 
     // Shape attributes
@@ -99,7 +99,8 @@ public class MainStage extends Application {
         translateYLabel = new Label("Translate Y: ");
         translateZLabel = new Label("Translate Z: ");
         scaleLabel = new Label("Change Scale: ");
-        changeColorLabel = new Label("Change Background Color: ");
+        changeColorLabel = new Label("Change Shape Color: ");
+        changeBgColorLabel = new Label("Change Background Color: ");
 
         // Sliders
         rotateSlider = new Slider(0, 359, 0);
@@ -124,15 +125,22 @@ public class MainStage extends Application {
             translateYTextField.setDisable(true);
             translateZTextField.setDisable(true);
         }
+        else {
+            rotateSlider.setDisable(false);
+            scaleSlider.setDisable(false);
+            translateXTextField.setDisable(false);
+            translateYTextField.setDisable(false);
+            translateZTextField.setDisable(false);
+        }
 
         // sub-scene that contains the shapes (original: 800, 600)
         pane = new Pane(new Box());
-        subScene = new SubScene(pane, subSceneWidth = 700, subSceneHeight = 500);
+        subScene = new SubScene(pane, 700, 500);
 
         pane.setStyle("-fx-border-style: solid; -fx-border-width: 2px; -fx-border-color: lightgray; -fx-background-color: white");
 
-        colorPicker.setOnAction(e -> {
-            pane.setStyle("-fx-border-style: solid; -fx-border-width: 2px; -fx-border-color: lightgray; -fx-background-color: #" + colorToHex(colorPicker.getValue()));
+        bgColorPicker.setOnAction(e -> {
+            pane.setStyle("-fx-border-style: solid; -fx-border-width: 2px; -fx-border-color: lightgray; -fx-background-color: #" + colorToHex(bgColorPicker.getValue()));
         });
 
         // menu bar and its items
@@ -157,8 +165,8 @@ public class MainStage extends Application {
                 new HBox(25, translateYLabel, translateYTextField),
                 new HBox(25, translateZLabel, translateZTextField),
                 new HBox(10, scaleLabel, scaleSlider),
-                new HBox(5, changeColorLabel, colorPicker) );
-        // new HBox(5, changeColorLabel, changeColorTextField) );
+                new HBox(5, changeColorLabel, colorPicker),
+                new HBox(5, changeBgColorLabel, bgColorPicker));
 
         controlBox.setMargin(controlBoxLabel, new Insets(0, 0, 15, 0));
         controlBox.setSpacing(25);
@@ -210,14 +218,14 @@ public class MainStage extends Application {
 
         // For boxes only
         Label widthLabel = new Label("Width: ");
-        Label lengthLabel = new Label("Length: ");
+        Label heightLabel = new Label("Height: ");
 
         TextField shapeWidth = new TextField();
-        TextField shapeLength = new TextField();
+        TextField shapeHeight = new TextField();
 
         // For boxes and cylinders only
-        Label heightLabel = new Label("Height: ");
-        TextField shapeHeight = new TextField();
+        Label depthLabel = new Label("Depth: ");
+        TextField shapeDepth = new TextField();
 
         // For spheres and cylinders only
         Label radiusLabel = new Label("Radius: ");
@@ -257,8 +265,8 @@ public class MainStage extends Application {
                         new HBox(20, yLabel, yPosition),
                         new HBox(20, zLabel, zPosition),
                         new HBox(20, widthLabel, shapeWidth),
-                        new HBox(20, lengthLabel, shapeLength),
                         new HBox(20, heightLabel, shapeHeight),
+                        new HBox(20, depthLabel, shapeDepth),
                         addButton);
             }
             else if (n.equals(2)) {
@@ -275,7 +283,7 @@ public class MainStage extends Application {
             vbox.setAlignment(Pos.TOP_CENTER);
         });
 
-        // Submit shape details // TODO decide what we're doing for shapes, either custom classes containing JavaFX or just JavaFXs
+        // Submit shape details
         addButton.setOnAction(e -> {
             int selectedShape = shapes.getSelectionModel().getSelectedIndex();
             double x = Double.parseDouble(xPosition.getText());
@@ -286,20 +294,29 @@ public class MainStage extends Application {
                 radius = Double.parseDouble(shapeRadius.getText());
                 Sphere sphere = new Sphere(radius);
                 translate(sphere, x, y, z);
+                changeColor(sphere);
+                pane.getChildren().add(sphere);
+                stage.close();
             }
             else if (selectedShape == 1)
             {
                 width = Double.parseDouble(shapeWidth.getText());
-                depth = Double.parseDouble(shapeLength.getText());
-                height = Double.parseDouble(shapeLength.getText());
+                height = Double.parseDouble(shapeHeight.getText());
+                depth = Double.parseDouble(shapeDepth.getText());
                 Box box = new Box(width, height, depth);
                 translate(box, x, y, z);
+                changeColor(box);
+                pane.getChildren().add(box);
+                stage.close();
             }
             else if (selectedShape == 2) {
                 radius = Double.parseDouble(shapeRadius.getText());
-                height = Double.parseDouble(shapeLength.getText());
+                height = Double.parseDouble(shapeHeight.getText());
                 Cylinder cylinder = new Cylinder(radius, height);
                 translate(cylinder, x, y, z);
+                changeColor(cylinder);
+                pane.getChildren().add(cylinder);
+                stage.close();
             }
             else
             {
@@ -317,6 +334,17 @@ public class MainStage extends Application {
         stage.show();
     }
 
+    private void changeProperties(Shape3D shape) {
+        shape.setOnMousePressed(e -> {
+            selected = true;
+
+        });
+
+        pane.setOnMousePressed(e -> {
+
+        });
+    }
+
     private void translate(Shape3D shape, double x, double y, double z) {
         Translate translate = new Translate(x, y, z);
         shape.getTransforms().add(translate);
@@ -328,7 +356,14 @@ public class MainStage extends Application {
     }
 
     private void scale(Shape3D shape, double xFactor, double yFactor, double zFactor) {
+        Scale scale = new Scale(xFactor, yFactor, zFactor);
+        shape.getTransforms().add(scale);
+    }
 
+    private void changeColor(Shape3D shape) {
+        bgColorPicker.setOnAction(e -> {
+            shape.setMaterial(new PhongMaterial(colorPicker.getValue()));
+        });
     }
 
     public void save()

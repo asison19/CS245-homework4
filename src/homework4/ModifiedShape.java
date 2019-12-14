@@ -1,11 +1,17 @@
 package homework4;
 
-public class Shape 
+import javafx.scene.shape.Box;
+import javafx.scene.shape.Cylinder;
+import javafx.scene.shape.Shape;
+import javafx.scene.shape.Shape3D;
+import javafx.scene.shape.Sphere;
+
+public class ModifiedShape extends Shape3D
 {
 	protected double x;
 	protected double y;
 	
-	public Shape()
+	public ModifiedShape()
 	{
 		
 	}

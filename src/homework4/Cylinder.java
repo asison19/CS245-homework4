@@ -1,6 +1,6 @@
 package homework4;
 
-public class Cylinder extends Shape
+public class Cylinder extends ModifiedShape
 {
 	private double radius;
 	private double height;
