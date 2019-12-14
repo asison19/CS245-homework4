@@ -22,6 +22,8 @@ import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Point3D;
 import javafx.geometry.Pos;
+import javafx.scene.Group;
+import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
 import javafx.scene.SubScene;
 import javafx.scene.control.*;
@@ -58,6 +60,8 @@ public class MainStage extends Application {
     // SubScene that has the shapes inside in 3D
     private Pane pane;
     private SubScene subScene;
+    private Group shapesGroup;
+    private PerspectiveCamera camera;
 
     // Menu bar that contains "file" menu
     private MenuBar menuBar;
@@ -134,8 +138,16 @@ public class MainStage extends Application {
         }
 
         // sub-scene that contains the shapes (original: 800, 600)
-        pane = new Pane(new Box());
+        pane = new Pane();
+        shapesGroup = new Group();
         subScene = new SubScene(pane, 700, 500);
+        camera = new PerspectiveCamera();
+        camera.getTransforms().add(new Translate(0, 0, 0));
+
+        // Cylinder cylinder = new Cylinder(100,200);
+        // shapesGroup.getChildren().add(cylinder);
+        pane.getChildren().add(shapesGroup);
+        subScene.setCamera(camera);
 
         pane.setStyle("-fx-border-style: solid; -fx-border-width: 2px; -fx-border-color: lightgray; -fx-background-color: white");
 
