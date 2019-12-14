@@ -234,7 +234,7 @@ public class MainStage extends Application {
                 return;
             selectedShape.getTransforms().addAll(new Rotate(((Double) newValue) - ((Double) oldValue), Rotate.Z_AXIS));
         });
-        
+
         // Scale Slider
         scaleSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (selectedShape == null)
@@ -310,7 +310,7 @@ public class MainStage extends Application {
         shapes.getItems().addAll("Sphere", "Box", "Cylinder");
 
         VBox vbox = new VBox(20, label,
-                new HBox(20, shapeLabel, shapes),
+                new HBox(40, shapeLabel, shapes),
                 new HBox(20, xLabel, xPosition),
                 new HBox(20, yLabel, yPosition),
                 new HBox(20, zLabel, zPosition),
@@ -324,32 +324,32 @@ public class MainStage extends Application {
             vbox.getChildren().clear();
             if (n.equals(0)) {
                 vbox.getChildren().addAll(label,
-                        new HBox(20, shapeLabel, shapes),
+                        new HBox(40, shapeLabel, shapes),
                         new HBox(20, xLabel, xPosition),
                         new HBox(20, yLabel, yPosition),
                         new HBox(20, zLabel, zPosition),
-                        new HBox(20, radiusLabel, shapeRadius),
+                        new HBox(37, radiusLabel, shapeRadius),
                         addButton);
             }
             else if (n.equals(1)) {
                 vbox.getChildren().addAll(label,
-                        new HBox(20, shapeLabel, shapes),
+                        new HBox(40, shapeLabel, shapes),
                         new HBox(20, xLabel, xPosition),
                         new HBox(20, yLabel, yPosition),
                         new HBox(20, zLabel, zPosition),
-                        new HBox(20, widthLabel, shapeWidth),
-                        new HBox(20, heightLabel, shapeHeight),
-                        new HBox(20, depthLabel, shapeDepth),
+                        new HBox(41, widthLabel, shapeWidth),
+                        new HBox(37, heightLabel, shapeHeight),
+                        new HBox(41, depthLabel, shapeDepth),
                         addButton);
             }
             else if (n.equals(2)) {
                 vbox.getChildren().addAll(label,
-                        new HBox(20, shapeLabel, shapes),
+                        new HBox(40, shapeLabel, shapes),
                         new HBox(20, xLabel, xPosition),
                         new HBox(20, yLabel, yPosition),
                         new HBox(20, zLabel, zPosition),
-                        new HBox(20, radiusLabel, shapeRadius),
-                        new HBox(20, heightLabel, shapeHeight),
+                        new HBox(37, radiusLabel, shapeRadius),
+                        new HBox(37, heightLabel, shapeHeight),
                         addButton);
             }
             vbox.setPadding(new Insets(30));
@@ -430,10 +430,9 @@ public class MainStage extends Application {
             if(selectedShape != null)
                 selectedShape.setMaterial(selectedShapeMaterial);
 
-            // TODO make controls actually change the objects
             selectedShape = shape;
             selectedShapeMaterial = shape.getMaterial();
-            disableControls(false); // TODO removed variable selected
+            disableControls(false);
             shape.setMaterial(new PhongMaterial(Color.LIGHTBLUE));
         });
     }
