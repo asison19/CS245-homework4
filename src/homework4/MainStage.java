@@ -84,13 +84,22 @@ public class MainStage extends Application {
     private double width, height, depth, radius;
     private boolean selected = false;
     private Shape3D selectedShape; // this is the selected shape
-    private Material selectedShapeMaterial; // this is the selecte shape's material
+    private Material selectedShapeMaterial; // this is the selected shape's material
 
 
     public static void main(String[] args)
     {
         launch(args);
-        MainStage MS = new MainStage();
+    	/*MainStage MS = new MainStage();
+    	
+    	Shape3D[] shapeList = new Shape3D[5];
+    	shapeList[0] = new Box(10,10,10);
+    	shapeList[1] = new Box(15,25,35);
+    	shapeList[2] = new Sphere(5);
+    	shapeList[3] = new Cylinder(100, 50);
+    	shapeList[4] = new Cylinder(50, 50);
+    	
+    	MS.save(shapeList);*/
     }
 
     @Override
@@ -158,9 +167,9 @@ public class MainStage extends Application {
         saveMenuItem = new MenuItem("Save");
         openMenuItem = new MenuItem("Open");
         
-        saveMenuItem.setOnAction(event->{
+        /*saveMenuItem.setOnAction(event->{
         	save();
-        });
+        });*/
         
         openMenuItem.setOnAction(event->{
         	load(primaryStage);
@@ -225,6 +234,11 @@ public class MainStage extends Application {
             if(selectedShape.equals(null))
                 return;
             selectedShape.getTransforms().addAll(new Rotate((Double) newValue, Rotate.Z_AXIS));
+        });
+        
+        //Scale Slider
+        scaleSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+        	System.out.println(oldValue+"\t"+newValue);
         });
 
         // Translate the XYZ position of the shape
@@ -468,15 +482,17 @@ public class MainStage extends Application {
         });
     }
 
-    public void save()
+    public void save(Shape3D[] shapesList)
     {
         try
-        {
-            PrintWriter writer = new PrintWriter(new File("SaveFile.txt"));
-            writer.append("Hello World");
-            writer.close();
-
-        }
+	    {
+	        PrintWriter writer = new PrintWriter(new File("SaveFile.txt"));
+	        
+	        for(int i=0; i<shapesList.length; ++i)
+	        	writer.append(printShapeData(shapesList[i])+"\n");
+	        
+	    	writer.close();
+    	}
         catch(FileNotFoundException FNFE)
         {
 
@@ -514,27 +530,31 @@ public class MainStage extends Application {
     public String printShapeData(Shape3D shape)
     {
     	String deliverables = "";
-    	deliverables = deliverables.concat(Double.toString(shape.getTranslateX()) + Double.toString(shape.getTranslateY()) + Double.toString(shape.getTranslateZ()) +
-    			Double.toString(shape.getScaleX()) + Double.toString(shape.getScaleY()) + Double.toString(shape.getScaleZ()));
+    	deliverables = deliverables.concat(Double.toString(shape.getTranslateX()) +" "+ Double.toString(shape.getTranslateY()) +" "+ Double.toString(shape.getTranslateZ()) +" "+
+    			Double.toString(shape.getScaleX()) +" "+ Double.toString(shape.getScaleY()) +" "+ Double.toString(shape.getScaleZ())+" ");
     	if(shape instanceof Box)
     	{
     		Box B = (Box)shape;
-    		deliverables = deliverables.concat(Double.toString(B.getWidth()) + Double.toString(B.getHeight()) + Double.toString(B.getDepth()));
+    		deliverables = deliverables.concat(Double.toString(B.getWidth()) +" "+ Double.toString(B.getHeight()) +" "+ Double.toString(B.getDepth()));
+    		deliverables = "B " + deliverables;
     	}
     	else if(shape instanceof Sphere)
     	{
     		Sphere S = (Sphere)shape;
     		deliverables = deliverables.concat(Double.toString(S.getRadius()));
+    		deliverables = "S " + deliverables;
     	}
     	else if(shape instanceof Cylinder)
     	{
     		Cylinder C = (Cylinder)shape;
-    		deliverables = deliverables.concat(Double.toString(C.getRadius()) + Double.toString(C.getHeight()));
+    		deliverables = deliverables.concat(Double.toString(C.getRadius()) +" "+ Double.toString(C.getHeight()));
+    		deliverables = "C " +deliverables;
     	}
 		return deliverables;
     }
 
-    String colorToHex(Color color) {
+    public static String colorToHex(Color color) 
+    {
         String hex1;
         String hex2;
 
