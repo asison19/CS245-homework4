@@ -18,8 +18,6 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.Scanner;
 
-import javax.swing.filechooser.FileNameExtensionFilter;
-
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Point3D;
@@ -43,7 +41,6 @@ import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
 import javafx.stage.FileChooser;
-import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import javafx.scene.paint.Color;
 
@@ -55,8 +52,8 @@ public class MainStage extends Application {
     // control box in the right side for shape transformations inside the subscene.
     // Shape transformations include: Rotate, Translate, Scale, and Change Colour.
     private VBox controlBox;
-    private Label controlBoxLabel, rotateLabel, translateXLabel, translateYLabel, translateZLabel, scaleLabel, changeBgColorLabel, changeColorLabel;
-    private Slider rotateSlider;
+    private Label controlBoxLabel, rotateXLabel, rotateYLabel, rotateZLabel, translateXLabel, translateYLabel, translateZLabel, scaleLabel, changeBgColorLabel, changeColorLabel;
+    private Slider rotateSliderX, rotateSliderY, rotateSliderZ;
     private TextField translateXTextField, translateYTextField, translateZTextField;
     private Slider scaleSlider;
     final ColorPicker colorPicker = new ColorPicker();
@@ -106,7 +103,9 @@ public class MainStage extends Application {
         // ShapeEditor and its labels
         controlBox = new VBox(20);
         controlBoxLabel = new Label("Shape Editor");
-        rotateLabel = new Label("Rotate: ");
+        rotateXLabel = new Label("Rotate X: ");
+        rotateYLabel = new Label("Rotate Y: ");
+        rotateZLabel = new Label("Rotate Z: ");
         translateXLabel = new Label("Translate X: ");
         translateYLabel = new Label("Translate Y: ");
         translateZLabel = new Label("Translate Z: ");
@@ -115,9 +114,14 @@ public class MainStage extends Application {
         changeBgColorLabel = new Label("Change Background Color: ");
 
         // Sliders
-        rotateSlider = new Slider(0, 359, 0);
+        rotateSliderX = new Slider(0, 359, 0);
+        rotateSliderY = new Slider(0, 359, 0);
+        rotateSliderZ = new Slider(0, 359, 0);
         scaleSlider = new Slider(0.5, 2.0, 1.0);
-        rotateSlider.setShowTickMarks(true);
+
+        rotateSliderX.setShowTickMarks(true);
+        rotateSliderY.setShowTickMarks(true);
+        rotateSliderZ.setShowTickMarks(true);
         scaleSlider.setShowTickMarks(true);
 
         // TextFields
@@ -128,22 +132,7 @@ public class MainStage extends Application {
         controlBox.setStyle("-fx-background-color: lightsteelblue");
         controlBox.setPadding(new Insets(35, 25, 20, 25));
 
-
-        // Disable controls when no shape is selected
-        if (!selected) {
-            rotateSlider.setDisable(true);
-            scaleSlider.setDisable(true);
-            translateXTextField.setDisable(true);
-            translateYTextField.setDisable(true);
-            translateZTextField.setDisable(true);
-        }
-        else {
-            rotateSlider.setDisable(false);
-            scaleSlider.setDisable(false);
-            translateXTextField.setDisable(false);
-            translateYTextField.setDisable(false);
-            translateZTextField.setDisable(false);
-        }
+        disableControls(true);
 
         // sub-scene that contains the shapes (original: 800, 600)
         pane = new Pane();
@@ -188,13 +177,15 @@ public class MainStage extends Application {
 
         /***************** Adding Controls to control box *****************/
         controlBox.getChildren().add(controlBoxLabel);
-        controlBox.getChildren().addAll(new HBox(40, rotateLabel, rotateSlider),
-                new HBox(25, translateXLabel, translateXTextField),
-                new HBox(25, translateYLabel, translateYTextField),
-                new HBox(25, translateZLabel, translateZTextField),
-                new HBox(10, scaleLabel, scaleSlider),
-                new HBox(5, changeColorLabel, colorPicker),
-                new HBox(5, changeBgColorLabel, bgColorPicker));
+        controlBox.getChildren().addAll(new HBox(40, rotateXLabel, rotateSliderX),
+                                        new HBox(40, rotateYLabel, rotateSliderY),
+                                        new HBox(40, rotateZLabel, rotateSliderZ),
+                                        new HBox(25, translateXLabel, translateXTextField),
+                                        new HBox(25, translateYLabel, translateYTextField),
+                                        new HBox(25, translateZLabel, translateZTextField),
+                                        new HBox(10, scaleLabel, scaleSlider),
+                                        new HBox(5, changeColorLabel, colorPicker),
+                                        new HBox(5, changeBgColorLabel, bgColorPicker));
 
         controlBox.setMargin(controlBoxLabel, new Insets(0, 0, 15, 0));
         controlBox.setSpacing(25);
@@ -216,12 +207,35 @@ public class MainStage extends Application {
         borderPane.setMargin(borderPane.getRight(), new Insets(0, 40, 10, 15));
         borderPane.setStyle("-fx-background-color: whitesmoke");
 
+        /********** Controls for the Selected Shape Transformations **********/
+
+
+        // rotate sliders
+        rotateSliderX.valueProperty().addListener((observable, oldValue, newValue) -> { // TODO reset the sliders
+            if(selectedShape.equals(null))
+                return;
+            selectedShape.getTransforms().addAll(new Rotate((Double) newValue, Rotate.X_AXIS));
+        });
+        rotateSliderY.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if(selectedShape.equals(null))
+                return;
+            selectedShape.getTransforms().addAll(new Rotate((Double) newValue, Rotate.Y_AXIS));
+        });
+        rotateSliderZ.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if(selectedShape.equals(null))
+                return;
+            selectedShape.getTransforms().addAll(new Rotate((Double) newValue, Rotate.Z_AXIS));
+        });
+
         Scene scene = new Scene(borderPane);
+
+        /********** primary stage set scene **********/
 
         primaryStage.setScene(scene);
         primaryStage.setTitle("Shape Editor");
         primaryStage.show();
-    }
+
+    } /********** End of start() Method **********/
 
 
     /***************** Opens new window with the add shape form *****************/
@@ -408,7 +422,9 @@ public class MainStage extends Application {
     }
 
     private void disableControls(boolean boo) {
-        rotateSlider.setDisable(boo);
+        rotateSliderX.setDisable(boo);
+        rotateSliderY.setDisable(boo);
+        rotateSliderZ.setDisable(boo);
         scaleSlider.setDisable(boo);
         translateXTextField.setDisable(boo);
         translateYTextField.setDisable(boo);
