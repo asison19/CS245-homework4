@@ -18,6 +18,8 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.Scanner;
 
+import javax.swing.filechooser.FileNameExtensionFilter;
+
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Point3D;
@@ -39,6 +41,8 @@ import javafx.scene.shape.Sphere;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import javafx.scene.paint.Color;
 
@@ -83,8 +87,6 @@ public class MainStage extends Application {
     {
         launch(args);
         MainStage MS = new MainStage();
-        MS.save();
-        MS.load();
     }
 
     @Override
@@ -160,6 +162,14 @@ public class MainStage extends Application {
         fileMenu = new Menu("File");
         saveMenuItem = new MenuItem("Save");
         openMenuItem = new MenuItem("Open");
+        
+        saveMenuItem.setOnAction(event->{
+        	save();
+        });
+        
+        openMenuItem.setOnAction(event->{
+        	load(primaryStage);
+        });
 
         // button to add shapes into the sub-scene
         addShapeButton = new Button("Add Shape");
@@ -393,11 +403,16 @@ public class MainStage extends Application {
         }
     }
 
-    public void load()
+    public void load(Stage stage)
     {
-        try
+        FileChooser FC = null; 
+    	try
         {
-            Scanner reader = new Scanner(new File("SaveFile.txt"));
+            FC = new FileChooser();
+            File saveFile = FC.showOpenDialog(stage);
+            
+            
+            Scanner reader = new Scanner(saveFile);
             String line;
             while(reader.hasNext())
             {
@@ -406,10 +421,14 @@ public class MainStage extends Application {
             }
 
         }
-        catch(FileNotFoundException FNFE)
+        catch(NullPointerException NPE)
         {
-
-        }
+        	System.out.println("Load File Aborted");
+        } 
+    	catch (FileNotFoundException e) 
+    	{
+    		System.out.println("File Not Found");
+		}
     }
 
     String colorToHex(Color color) {
