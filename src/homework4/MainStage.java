@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -43,6 +44,7 @@ import javafx.scene.transform.Translate;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.scene.paint.Color;
+import javafx.util.converter.DoubleStringConverter;
 
 public class MainStage extends Application {
 
@@ -85,6 +87,8 @@ public class MainStage extends Application {
     private Shape3D selectedShape; // this is the selected shape
     private Material selectedShapeMaterial; // this is the selected shape's material
 
+    // pattern for the reg exp of the textfields
+    private Pattern validDoubleText;
 
     public static void main(String[] args)
     {
@@ -153,6 +157,34 @@ public class MainStage extends Application {
 
         pane.getChildren().add(shapesGroup);
         subScene.setCamera(camera);
+
+
+        /********* Set the input detection for the translate text fields **********/
+        validDoubleText = Pattern.compile("\\-?\\d{0,7}([\\.]\\d{0,2})?");
+        translateXTextField.setTextFormatter(new TextFormatter<Double>(new DoubleStringConverter(), 0.0,
+                change -> {
+                    String newText = change.getControlNewText() ;
+                    if (validDoubleText.matcher(newText).matches()) {
+                        return change ;
+                    } else return null ;
+                }));
+        translateXTextField.setText("");
+        translateYTextField.setTextFormatter(new TextFormatter<Double>(new DoubleStringConverter(), 0.0,
+                change -> {
+                    String newText = change.getControlNewText() ;
+                    if (validDoubleText.matcher(newText).matches()) {
+                        return change ;
+                    } else return null ;
+                }));
+        translateYTextField.setText("");
+        translateZTextField.setTextFormatter(new TextFormatter<Double>(new DoubleStringConverter(), 0.0,
+                change -> {
+                    String newText = change.getControlNewText() ;
+                    if (validDoubleText.matcher(newText).matches()) {
+                        return change ;
+                    } else return null ;
+                }));
+        translateZTextField.setText("");
 
         pane.setStyle("-fx-border-style: solid; -fx-border-width: 2px; -fx-border-color: lightgray; -fx-background-color: white");
 
@@ -247,9 +279,9 @@ public class MainStage extends Application {
         translateButton.setOnAction(actionEvent -> {
             if(selectedShape == null)
                 return;
-            selectedShape.setTranslateX(Double.parseDouble(translateXTextField.getText()));
-            selectedShape.setTranslateY(Double.parseDouble(translateYTextField.getText()));
-            selectedShape.setTranslateZ(Double.parseDouble(translateZTextField.getText()));
+            selectedShape.setTranslateX(selectedShape.getTranslateX() + Double.parseDouble(translateXTextField.getText()));
+            selectedShape.setTranslateY(selectedShape.getTranslateY() + Double.parseDouble(translateYTextField.getText()));
+            selectedShape.setTranslateZ(selectedShape.getTranslateZ() + Double.parseDouble(translateZTextField.getText()));
         });
 
         // Change the color of the selected shape
@@ -304,6 +336,18 @@ public class MainStage extends Application {
         Label radiusLabel = new Label("Radius: ");
         TextField shapeRadius = new TextField();
 
+        TextField[] textFields = {xPosition, yPosition, zPosition, shapeWidth, shapeHeight, shapeDepth, shapeRadius};
+
+        for(TextField t: textFields){
+            t.setTextFormatter(new TextFormatter<Double>(new DoubleStringConverter(), 0.0,
+                change -> {
+                    String newText = change.getControlNewText() ;
+                    if (validDoubleText.matcher(newText).matches()) {
+                        return change ;
+                    } else return null ;
+                }));
+            t.setText("");
+        }
 
         // ChoiceBox with list of shapes
         ChoiceBox<String> shapes = new ChoiceBox<>();
@@ -359,12 +403,32 @@ public class MainStage extends Application {
         // Submit shape details
         addButton.setOnAction(e -> {
             int selectedShape = shapes.getSelectionModel().getSelectedIndex();
-            double x = Double.parseDouble(xPosition.getText());
-            double y = Double.parseDouble(yPosition.getText());
-            double z = Double.parseDouble(zPosition.getText());
 
-            if (selectedShape == 0) {
+            double x,y,z;
+
+            if(xPosition.getText().equals("")) {
+                x = 0;
+            } else x = Double.parseDouble(xPosition.getText());
+            if(yPosition.getText().equals("")) {
+                y = 0;
+            } else y = Double.parseDouble(yPosition.getText());
+            if(zPosition.getText().equals("")) {
+                z = 0;
+            } else z = Double.parseDouble(zPosition.getText());
+
+            if (selectedShape == 0) { // Sphere
+                if(shapeRadius.getText().equals("")) {
+                    showFormNotCompleteAlert();
+                    return;
+                }
+
                 radius = Double.parseDouble(shapeRadius.getText());
+
+                if(radius == 0) {
+                    showFormNotCompleteAlert();
+                    return;
+                }
+
                 Sphere sphere = new Sphere(radius);
                 translate(sphere, x, y, z);
                 changeColor(sphere);
@@ -372,11 +436,19 @@ public class MainStage extends Application {
                 changeProperties(sphere);
                 stage.close();
             }
-            else if (selectedShape == 1)
+            else if (selectedShape == 1) // Box
             {
+                if(shapeWidth.getText().equals("") || shapeHeight.getText().equals("") || shapeDepth.getText().equals("")) {
+                    showFormNotCompleteAlert();
+                    return;
+                }
                 width = Double.parseDouble(shapeWidth.getText());
                 height = Double.parseDouble(shapeHeight.getText());
                 depth = Double.parseDouble(shapeDepth.getText());
+                if(width == 0 || height == 0 ||  depth == 0) {
+                    showFormNotCompleteAlert();
+                    return;
+                }
                 Box box = new Box(width, height, depth);
                 translate(box, x, y, z);
                 changeColor(box);
@@ -384,9 +456,19 @@ public class MainStage extends Application {
                 changeProperties(box);
                 stage.close();
             }
-            else if (selectedShape == 2) {
+            else if (selectedShape == 2) { // Cylinder
+
+                if(shapeRadius.getText().equals("") || shapeHeight.getText().equals("")) {
+                    showFormNotCompleteAlert();
+                    return;
+                }
                 radius = Double.parseDouble(shapeRadius.getText());
                 height = Double.parseDouble(shapeHeight.getText());
+
+                if(radius == 0 || height == 0) {
+                    showFormNotCompleteAlert();
+                    return;
+                }
                 Cylinder cylinder = new Cylinder(radius, height);
                 translate(cylinder, x, y, z);
                 changeColor(cylinder);
@@ -408,6 +490,14 @@ public class MainStage extends Application {
         stage.setScene(scene);
         stage.setTitle("Add a Shape");
         stage.show();
+    }
+
+    private void showFormNotCompleteAlert(){
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText("Input Value Error");
+        alert.setContentText("Please complete the form and make sure shape properties are not left at 0.");
+        alert.show();
     }
 
     private void changeProperties(Shape3D shape) {
