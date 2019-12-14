@@ -55,6 +55,7 @@ public class MainStage extends Application {
     private Label controlBoxLabel, rotateXLabel, rotateYLabel, rotateZLabel, translateXLabel, translateYLabel, translateZLabel, scaleLabel, changeBgColorLabel, changeColorLabel;
     private Slider rotateSliderX, rotateSliderY, rotateSliderZ;
     private TextField translateXTextField, translateYTextField, translateZTextField;
+    private Button translateButton; // once this is clicked, it gets the values of the text fields // TODO valid input checking or just warn user
     private Slider scaleSlider;
     final ColorPicker colorPicker = new ColorPicker();
     final ColorPicker bgColorPicker = new ColorPicker();
@@ -124,10 +125,11 @@ public class MainStage extends Application {
         rotateSliderZ.setShowTickMarks(true);
         scaleSlider.setShowTickMarks(true);
 
-        // TextFields
+        // Translate TextFields and Button
         translateXTextField = new TextField();
         translateYTextField = new TextField();
         translateZTextField = new TextField();
+        translateButton = new Button("Translate");
 
         controlBox.setStyle("-fx-background-color: lightsteelblue");
         controlBox.setPadding(new Insets(35, 25, 20, 25));
@@ -141,8 +143,6 @@ public class MainStage extends Application {
         camera = new PerspectiveCamera();
         camera.getTransforms().add(new Translate(0, 0, 0));
 
-        // Cylinder cylinder = new Cylinder(100,200);
-        // shapesGroup.getChildren().add(cylinder);
         pane.getChildren().add(shapesGroup);
         subScene.setCamera(camera);
 
@@ -183,6 +183,7 @@ public class MainStage extends Application {
                                         new HBox(25, translateXLabel, translateXTextField),
                                         new HBox(25, translateYLabel, translateYTextField),
                                         new HBox(25, translateZLabel, translateZTextField),
+                                        new HBox(25, translateButton),
                                         new HBox(10, scaleLabel, scaleSlider),
                                         new HBox(5, changeColorLabel, colorPicker),
                                         new HBox(5, changeBgColorLabel, bgColorPicker));
@@ -209,7 +210,6 @@ public class MainStage extends Application {
 
         /********** Controls for the Selected Shape Transformations **********/
 
-
         // rotate sliders
         rotateSliderX.valueProperty().addListener((observable, oldValue, newValue) -> { // TODO reset the sliders
             if(selectedShape.equals(null))
@@ -227,10 +227,24 @@ public class MainStage extends Application {
             selectedShape.getTransforms().addAll(new Rotate((Double) newValue, Rotate.Z_AXIS));
         });
 
-        Scene scene = new Scene(borderPane);
+        // Translate the XYZ position of the shape
+        translateButton.setOnAction(actionEvent -> {
+            if(selectedShape.equals(null))
+                return;
+            selectedShape.setTranslateX(Double.parseDouble(translateXTextField.getText()));
+            selectedShape.setTranslateY(Double.parseDouble(translateYTextField.getText()));
+            selectedShape.setTranslateZ(Double.parseDouble(translateZTextField.getText()));
+        });
+
+        // Change the color of the selected shape
+        colorPicker.setOnAction(actionEvent -> {
+            if(selectedShape.equals(null))
+                return;
+            selectedShape.setMaterial(new PhongMaterial(colorPicker.getValue()));
+        });
 
         /********** primary stage set scene **********/
-
+        Scene scene = new Scene(borderPane);
         primaryStage.setScene(scene);
         primaryStage.setTitle("Shape Editor");
         primaryStage.show();
@@ -429,6 +443,7 @@ public class MainStage extends Application {
         translateXTextField.setDisable(boo);
         translateYTextField.setDisable(boo);
         translateZTextField.setDisable(boo);
+        translateButton.setDisable(boo);
         colorPicker.setDisable(boo);
     }
 
@@ -546,6 +561,7 @@ public class MainStage extends Application {
                 break;
             default:
                 hex2 = hex1.substring(0, 6);
+                break;
         }
         return hex2;
     }
