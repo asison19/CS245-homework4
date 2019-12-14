@@ -1,5 +1,5 @@
 /*
-    Class: MainStageStageStageStageStageStage
+    Class: MainStage
     Contains main method and the primary stage for the application.
 
     TODO
@@ -82,7 +82,6 @@ public class MainStage extends Application {
 
     // Shape attributes
     private double width, height, depth, radius;
-    private boolean selected = false;
     private Shape3D selectedShape; // this is the selected shape
     private Material selectedShapeMaterial; // this is the selected shape's material
 
@@ -91,14 +90,14 @@ public class MainStage extends Application {
     {
         launch(args);
     	/*MainStage MS = new MainStage();
-    	
+
     	Shape3D[] shapeList = new Shape3D[5];
     	shapeList[0] = new Box(10,10,10);
     	shapeList[1] = new Box(15,25,35);
     	shapeList[2] = new Sphere(5);
     	shapeList[3] = new Cylinder(100, 50);
     	shapeList[4] = new Cylinder(50, 50);
-    	
+
     	MS.save(shapeList);*/
     }
 
@@ -124,9 +123,9 @@ public class MainStage extends Application {
         changeBgColorLabel = new Label("Change Background Color: ");
 
         // Sliders
-        rotateSliderX = new Slider(0, 359, 0);
-        rotateSliderY = new Slider(0, 359, 0);
-        rotateSliderZ = new Slider(0, 359, 0);
+        rotateSliderX = new Slider(0, 360, 180);
+        rotateSliderY = new Slider(0, 360, 180);
+        rotateSliderZ = new Slider(0, 360, 180);
         scaleSlider = new Slider(0.5, 2.0, 1.0);
 
         rotateSliderX.setShowTickMarks(true);
@@ -166,13 +165,13 @@ public class MainStage extends Application {
         fileMenu = new Menu("File");
         saveMenuItem = new MenuItem("Save");
         openMenuItem = new MenuItem("Open");
-        
+
         /*saveMenuItem.setOnAction(event->{
         	save();
         });*/
-        
+
         openMenuItem.setOnAction(event->{
-        	load(primaryStage);
+            load(primaryStage);
         });
 
         // button to add shapes into the sub-scene
@@ -187,18 +186,18 @@ public class MainStage extends Application {
         /***************** Adding Controls to control box *****************/
         controlBox.getChildren().add(controlBoxLabel);
         controlBox.getChildren().addAll(new HBox(40, rotateXLabel, rotateSliderX),
-                                        new HBox(40, rotateYLabel, rotateSliderY),
-                                        new HBox(40, rotateZLabel, rotateSliderZ),
-                                        new HBox(25, translateXLabel, translateXTextField),
-                                        new HBox(25, translateYLabel, translateYTextField),
-                                        new HBox(25, translateZLabel, translateZTextField),
-                                        new HBox(25, translateButton),
-                                        new HBox(10, scaleLabel, scaleSlider),
-                                        new HBox(5, changeColorLabel, colorPicker),
-                                        new HBox(5, changeBgColorLabel, bgColorPicker));
+                new HBox(40, rotateYLabel, rotateSliderY),
+                new HBox(40, rotateZLabel, rotateSliderZ),
+                new HBox(25, translateXLabel, translateXTextField),
+                new HBox(25, translateYLabel, translateYTextField),
+                new HBox(25, translateZLabel, translateZTextField),
+                new HBox(25, translateButton),
+                new HBox(10, scaleLabel, scaleSlider),
+                new HBox(5, changeColorLabel, colorPicker),
+                new HBox(5, changeBgColorLabel, bgColorPicker));
 
         controlBox.setMargin(controlBoxLabel, new Insets(0, 0, 15, 0));
-        controlBox.setSpacing(25);
+        controlBox.setSpacing(15);
         controlBox.setAlignment(Pos.TOP_CENTER);
         controlBoxLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold");
 
@@ -223,23 +222,26 @@ public class MainStage extends Application {
         rotateSliderX.valueProperty().addListener((observable, oldValue, newValue) -> { // TODO reset the sliders
             if(selectedShape == null)
                 return;
-            selectedShape.getTransforms().addAll(new Rotate((Double) newValue, Rotate.X_AXIS));
+            selectedShape.getTransforms().addAll(new Rotate(((Double) newValue) - ((Double) oldValue), Rotate.X_AXIS));
         });
         rotateSliderY.valueProperty().addListener((observable, oldValue, newValue) -> {
             if(selectedShape == null)
                 return;
-            selectedShape.getTransforms().addAll(new Rotate((Double) newValue, Rotate.Y_AXIS));
+            selectedShape.getTransforms().addAll(new Rotate(((Double) newValue) - ((Double) oldValue), Rotate.Y_AXIS));
         });
         rotateSliderZ.valueProperty().addListener((observable, oldValue, newValue) -> {
             if(selectedShape == null)
                 return;
-            selectedShape.getTransforms().addAll(new Rotate((Double) newValue, Rotate.Z_AXIS));
+            selectedShape.getTransforms().addAll(new Rotate(((Double) newValue) - ((Double) oldValue), Rotate.Z_AXIS));
         });
         
-        //Scale Slider
+        // Scale Slider
         scaleSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
-        	System.out.println(oldValue+"\t"+newValue);
+            if (selectedShape == null)
+                return;
+            scale(selectedShape, ((Double) newValue) - ((Double) oldValue));
         });
+
 
         // Translate the XYZ position of the shape
         translateButton.setOnAction(actionEvent -> {
@@ -251,10 +253,11 @@ public class MainStage extends Application {
         });
 
         // Change the color of the selected shape
-        colorPicker.setOnAction(actionEvent -> {
+        colorPicker.setOnAction(actionEvent -> { // TODO make selected shape not turn to CYAN
             if(selectedShape == null)
                 return;
-            selectedShape.setMaterial(new PhongMaterial(colorPicker.getValue()));
+            selectedShapeMaterial = new PhongMaterial(colorPicker.getValue());
+            selectedShape.setMaterial(selectedShapeMaterial);
         });
 
         /********** primary stage set scene **********/
@@ -407,7 +410,7 @@ public class MainStage extends Application {
         stage.show();
     }
 
-    private Shape3D changeProperties(Shape3D shape) {
+    private void changeProperties(Shape3D shape) {
 
         /********* Select the topmost shape in the pane inside the subscene *********/
         shape.setOnMousePressed(e -> {
@@ -428,25 +431,11 @@ public class MainStage extends Application {
                 selectedShape.setMaterial(selectedShapeMaterial);
 
             // TODO make controls actually change the objects
-            // selected = true;
             selectedShape = shape;
             selectedShapeMaterial = shape.getMaterial();
             disableControls(false); // TODO removed variable selected
-            shape.setMaterial(new PhongMaterial(Color.LIGHTCYAN));
-            thisShape = shape; // TODO not sure what this is for
-            System.out.println("FOO");
+            shape.setMaterial(new PhongMaterial(Color.LIGHTBLUE));
         });
-
-//        pane.setOnMousePressed(e -> { // TODO this gets clicked as well when clicking a shape,
-//                                      // TODO i've changed it so that clicking the previous shape unselects it
-//            selected = false;
-//            selectedShape.setMaterial(selectedShapeMaterial);
-//            enableControls(selected);
-//            shape.setMaterial(new PhongMaterial(colorPicker.getValue()));
-//            System.out.println("Bar");
-//        });
-        System.out.println("added shape");
-        return thisShape;
     }
 
     private void disableControls(boolean boo) {
@@ -466,14 +455,11 @@ public class MainStage extends Application {
         shape.getTransforms().add(translate);
     }
 
-    private void rotate(Shape3D shape, double angle, Point3D axisOfRotation) {
-        Rotate rotate = new Rotate(angle, axisOfRotation);
-        shape.getTransforms().add(rotate);
-    }
-
-    private void scale(Shape3D shape, double xFactor, double yFactor, double zFactor) {
-        Scale scale = new Scale(xFactor, yFactor, zFactor);
-        shape.getTransforms().add(scale);
+    private void scale(Shape3D shape, double factor) {
+        shape.setScaleX(shape.getScaleX() + factor);
+        shape.setScaleY(shape.getScaleY() + factor);
+        shape.setScaleZ(shape.getScaleZ() + factor);
+        System.out.println(factor);
     }
 
     private void changeColor(Shape3D shape) {
@@ -485,14 +471,14 @@ public class MainStage extends Application {
     public void save(Shape3D[] shapesList)
     {
         try
-	    {
-	        PrintWriter writer = new PrintWriter(new File("SaveFile.txt"));
-	        
-	        for(int i=0; i<shapesList.length; ++i)
-	        	writer.append(printShapeData(shapesList[i])+"\n");
-	        
-	    	writer.close();
-    	}
+        {
+            PrintWriter writer = new PrintWriter(new File("SaveFile.txt"));
+
+            for(int i=0; i<shapesList.length; ++i)
+                writer.append(printShapeData(shapesList[i])+"\n");
+
+            writer.close();
+        }
         catch(FileNotFoundException FNFE)
         {
 
@@ -501,13 +487,13 @@ public class MainStage extends Application {
 
     public void load(Stage stage)
     {
-        FileChooser FC = null; 
-    	try
+        FileChooser FC = null;
+        try
         {
             FC = new FileChooser();
             File saveFile = FC.showOpenDialog(stage);
-            
-            
+
+
             Scanner reader = new Scanner(saveFile);
             String line;
             while(reader.hasNext())
@@ -519,41 +505,41 @@ public class MainStage extends Application {
         }
         catch(NullPointerException NPE)
         {
-        	System.out.println("Load File Aborted");
-        } 
-    	catch (FileNotFoundException e) 
-    	{
-    		System.out.println("File Not Found");
-		}
-    }
-    
-    public String printShapeData(Shape3D shape)
-    {
-    	String deliverables = "";
-    	deliverables = deliverables.concat(Double.toString(shape.getTranslateX()) +" "+ Double.toString(shape.getTranslateY()) +" "+ Double.toString(shape.getTranslateZ()) +" "+
-    			Double.toString(shape.getScaleX()) +" "+ Double.toString(shape.getScaleY()) +" "+ Double.toString(shape.getScaleZ())+" ");
-    	if(shape instanceof Box)
-    	{
-    		Box B = (Box)shape;
-    		deliverables = deliverables.concat(Double.toString(B.getWidth()) +" "+ Double.toString(B.getHeight()) +" "+ Double.toString(B.getDepth()));
-    		deliverables = "B " + deliverables;
-    	}
-    	else if(shape instanceof Sphere)
-    	{
-    		Sphere S = (Sphere)shape;
-    		deliverables = deliverables.concat(Double.toString(S.getRadius()));
-    		deliverables = "S " + deliverables;
-    	}
-    	else if(shape instanceof Cylinder)
-    	{
-    		Cylinder C = (Cylinder)shape;
-    		deliverables = deliverables.concat(Double.toString(C.getRadius()) +" "+ Double.toString(C.getHeight()));
-    		deliverables = "C " +deliverables;
-    	}
-		return deliverables;
+            System.out.println("Load File Aborted");
+        }
+        catch (FileNotFoundException e)
+        {
+            System.out.println("File Not Found");
+        }
     }
 
-    public static String colorToHex(Color color) 
+    public String printShapeData(Shape3D shape)
+    {
+        String deliverables = "";
+        deliverables = deliverables.concat(Double.toString(shape.getTranslateX()) +" "+ Double.toString(shape.getTranslateY()) +" "+ Double.toString(shape.getTranslateZ()) +" "+
+                Double.toString(shape.getScaleX()) +" "+ Double.toString(shape.getScaleY()) +" "+ Double.toString(shape.getScaleZ())+" ");
+        if(shape instanceof Box)
+        {
+            Box B = (Box)shape;
+            deliverables = deliverables.concat(Double.toString(B.getWidth()) +" "+ Double.toString(B.getHeight()) +" "+ Double.toString(B.getDepth()));
+            deliverables = "B " + deliverables;
+        }
+        else if(shape instanceof Sphere)
+        {
+            Sphere S = (Sphere)shape;
+            deliverables = deliverables.concat(Double.toString(S.getRadius()));
+            deliverables = "S " + deliverables;
+        }
+        else if(shape instanceof Cylinder)
+        {
+            Cylinder C = (Cylinder)shape;
+            deliverables = deliverables.concat(Double.toString(C.getRadius()) +" "+ Double.toString(C.getHeight()));
+            deliverables = "C " +deliverables;
+        }
+        return deliverables;
+    }
+
+    public static String colorToHex(Color color)
     {
         String hex1;
         String hex2;
