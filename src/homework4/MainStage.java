@@ -97,7 +97,7 @@ public class MainStage extends Application {
         // layout that is the root of everything else
         borderPane = new BorderPane();
 
-        // Control box and its labels
+        // ShapeEditor and its labels
         controlBox = new VBox(20);
         controlBoxLabel = new Label("Shape Editor");
         rotateLabel = new Label("Rotate: ");
@@ -429,6 +429,29 @@ public class MainStage extends Application {
     	{
     		System.out.println("File Not Found");
 		}
+    }
+    
+    public String printShapeData(Shape3D shape)
+    {
+    	String deliverables = "";
+    	deliverables = deliverables.concat(Double.toString(shape.getTranslateX()) + Double.toString(shape.getTranslateY()) + Double.toString(shape.getTranslateZ()) +
+    			Double.toString(shape.getScaleX()) + Double.toString(shape.getScaleY()) + Double.toString(shape.getScaleZ()));
+    	if(shape instanceof Box)
+    	{
+    		Box B = (Box)shape;
+    		deliverables = deliverables.concat(Double.toString(B.getWidth()) + Double.toString(B.getHeight()) + Double.toString(B.getDepth()));
+    	}
+    	else if(shape instanceof Sphere)
+    	{
+    		Sphere S = (Sphere)shape;
+    		deliverables = deliverables.concat(Double.toString(S.getRadius()));
+    	}
+    	else if(shape instanceof Cylinder)
+    	{
+    		Cylinder C = (Cylinder)shape;
+    		deliverables = deliverables.concat(Double.toString(C.getRadius()) + Double.toString(C.getHeight()));
+    	}
+		return deliverables;
     }
 
     String colorToHex(Color color) {
