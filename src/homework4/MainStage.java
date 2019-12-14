@@ -212,24 +212,24 @@ public class MainStage extends Application {
 
         // rotate sliders
         rotateSliderX.valueProperty().addListener((observable, oldValue, newValue) -> { // TODO reset the sliders
-            if(selectedShape.equals(null))
+            if(selectedShape == null)
                 return;
             selectedShape.getTransforms().addAll(new Rotate((Double) newValue, Rotate.X_AXIS));
         });
         rotateSliderY.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if(selectedShape.equals(null))
+            if(selectedShape == null)
                 return;
             selectedShape.getTransforms().addAll(new Rotate((Double) newValue, Rotate.Y_AXIS));
         });
         rotateSliderZ.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if(selectedShape.equals(null))
+            if(selectedShape == null)
                 return;
             selectedShape.getTransforms().addAll(new Rotate((Double) newValue, Rotate.Z_AXIS));
         });
 
         // Translate the XYZ position of the shape
         translateButton.setOnAction(actionEvent -> {
-            if(selectedShape.equals(null))
+            if(selectedShape == null)
                 return;
             selectedShape.setTranslateX(Double.parseDouble(translateXTextField.getText()));
             selectedShape.setTranslateY(Double.parseDouble(translateYTextField.getText()));
@@ -238,7 +238,7 @@ public class MainStage extends Application {
 
         // Change the color of the selected shape
         colorPicker.setOnAction(actionEvent -> {
-            if(selectedShape.equals(null))
+            if(selectedShape == null)
                 return;
             selectedShape.setMaterial(new PhongMaterial(colorPicker.getValue()));
         });
@@ -399,7 +399,7 @@ public class MainStage extends Application {
         shape.setOnMousePressed(e -> {
 
             // if this was selected already, unselect it
-            if(shape.equals(selectedShape)) {
+            if(shape == selectedShape) {
                 shape.setMaterial(selectedShapeMaterial);
 
                 selectedShape = null;
