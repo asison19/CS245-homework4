@@ -83,9 +83,6 @@ public class MainStage extends Application {
     private Shape3D selectedShape; // this is the selected shape
     private Material selectedShapeMaterial; // this is the selected shape's material
 
-    // pattern for the reg exp of the textfields
-    private Pattern validDoubleText;
-
     public static void main(String[] args)
     {
         launch(args);
@@ -154,34 +151,13 @@ public class MainStage extends Application {
         pane.getChildren().add(shapesGroup);
         subScene.setCamera(camera);
 
-
         /********* Set the input detection for the translate text fields **********/
-        validDoubleText = Pattern.compile("\\-?\\d{0,7}([\\.]\\d{0,2})?");
-        translateXTextField.setTextFormatter(new TextFormatter<Double>(new DoubleStringConverter(), 0.0,
-                change -> {
-                    String newText = change.getControlNewText() ;
-                    if (validDoubleText.matcher(newText).matches()) {
-                        return change ;
-                    } else return null ;
-                }));
-        translateXTextField.setText("");
-        translateYTextField.setTextFormatter(new TextFormatter<Double>(new DoubleStringConverter(), 0.0,
-                change -> {
-                    String newText = change.getControlNewText() ;
-                    if (validDoubleText.matcher(newText).matches()) {
-                        return change ;
-                    } else return null ;
-                }));
-        translateYTextField.setText("");
-        translateZTextField.setTextFormatter(new TextFormatter<Double>(new DoubleStringConverter(), 0.0,
-                change -> {
-                    String newText = change.getControlNewText() ;
-                    if (validDoubleText.matcher(newText).matches()) {
-                        return change ;
-                    } else return null ;
-                }));
-        translateZTextField.setText("");
+        setTextFieldDoubleOnly(translateXTextField);
+        setTextFieldDoubleOnly(translateYTextField);
+        setTextFieldDoubleOnly(translateZTextField);
 
+
+        /********* Set the Style and the style changer for the pane/background of subscene *********/
         pane.setStyle("-fx-border-style: solid; -fx-border-width: 2px; -fx-border-color: lightgray; -fx-background-color: white");
 
         bgColorPicker.setOnAction(e -> {
@@ -202,7 +178,7 @@ public class MainStage extends Application {
             load(primaryStage);
         });
 
-        // button to add shapes into the sub-scene
+        /***************** Add the button that adds shapes into the sub-scene *****************/
         addShapeButton = new Button("Add Shape");
         addShapeButton.setOnAction(e -> {
             showForm();
@@ -294,12 +270,9 @@ public class MainStage extends Application {
                 z = Double.parseDouble(translateZTextField.getText());
 
             translate(selectedShape, x, y, z);
-//            selectedShape.setTranslateX(selectedShape.getTranslateX() + Double.parseDouble(translateXTextField.getText()));
-//            selectedShape.setTranslateY(selectedShape.getTranslateY() + Double.parseDouble(translateYTextField.getText()));
-//            selectedShape.setTranslateZ(selectedShape.getTranslateZ() + Double.parseDouble(translateZTextField.getText()));
         });
 
-        // Change the color of the selected shape
+        // Color picker to change the color of the selected shape
         colorPicker.setOnAction(actionEvent -> {
             if(selectedShape == null)
                 return;
@@ -354,14 +327,7 @@ public class MainStage extends Application {
         TextField[] textFields = {xPosition, yPosition, zPosition, shapeWidth, shapeHeight, shapeDepth, shapeRadius};
 
         for(TextField t: textFields){
-            t.setTextFormatter(new TextFormatter<Double>(new DoubleStringConverter(), 0.0,
-                change -> {
-                    String newText = change.getControlNewText() ;
-                    if (validDoubleText.matcher(newText).matches()) {
-                        return change ;
-                    } else return null ;
-                }));
-            t.setText("");
+            setTextFieldDoubleOnly(t);
         }
 
         // ChoiceBox with list of shapes
@@ -454,9 +420,8 @@ public class MainStage extends Application {
                 pane.getChildren().add(sphere);
                 changeProperties(sphere);
                 stage.close();
-            }
-            else if (selectedShape == 1) // Box
-            {
+
+            } else if (selectedShape == 1) { // Box
                 if(shapeWidth.getText().equals("") || shapeHeight.getText().equals("") || shapeDepth.getText().equals("")) {
                     showFormNotCompleteAlert();
                     return;
@@ -474,9 +439,8 @@ public class MainStage extends Application {
                 pane.getChildren().add(box);
                 changeProperties(box);
                 stage.close();
-            }
-            else if (selectedShape == 2) { // Cylinder
 
+            } else if (selectedShape == 2) { // Cylinder
                 if(shapeRadius.getText().equals("") || shapeHeight.getText().equals("")) {
                     showFormNotCompleteAlert();
                     return;
@@ -494,15 +458,20 @@ public class MainStage extends Application {
                 pane.getChildren().add(cylinder);
                 changeProperties(cylinder);
                 stage.close();
-            }
-            else
-            {
+
+            } else {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Error");
                 alert.setHeaderText("No Shape Selected");
                 alert.setContentText("Please select a shape.");
                 alert.show();
+                return;
             }
+
+            // set the translate textfields to empty, should the initial x, y, z, values be over or under the bounds
+            translateXTextField.setText("");
+            translateYTextField.setText("");
+            translateZTextField.setText("");
         });
 
         Scene scene = new Scene(vbox, 375, 500);
@@ -561,12 +530,15 @@ public class MainStage extends Application {
         translateZTextField.setDisable(b);
         translateButton.setDisable(b);
         colorPicker.setDisable(b);
+
     }
 
     /*
     Moves the shape according to the corresponding x, y, z coordinates.
-    Won't move the shape outside of the bounds according to the center
+    Won't move the shape outside of the bounds, the subscene width and height,
+    according to the center of the shape.
     of the shape. TODO find how to make it stay inside the edge according to opposite edge of the shape
+                  TODO moving by z makes it visible beyond width and height
      */
     private void translate(Shape3D shape, double x, double y, double z) {
 
@@ -591,7 +563,6 @@ public class MainStage extends Application {
             translateZTextField.setText(Double.toString(z));
         }
 
-        System.out.println(shape.getTranslateX() + " x: " + x);
         shape.setTranslateX(shape.getTranslateX() + x);
         shape.setTranslateY(shape.getTranslateY() + y);
         shape.setTranslateZ(shape.getTranslateZ() + z);
@@ -711,5 +682,27 @@ public class MainStage extends Application {
                 break;
         }
         return hex2;
+    }
+
+    /*
+    Set the passed in text field to only contain a double as x.y
+    where x is a 7 digit number, and y is a 4 digit number.
+
+    With regards to setting the x, y, z position, the translate
+    will be forced to be within the bounds of the subscene.
+    See method:
+        translate(Shape3D shape, double x, double y, double z)
+    for more information.
+     */
+    private void setTextFieldDoubleOnly(TextField textField){
+        final Pattern validDoubleText = Pattern.compile("\\-?\\d{0,7}([\\.]\\d{0,4})?");
+        textField.setTextFormatter(new TextFormatter<Double>(new DoubleStringConverter(), 0.0,
+                change -> {
+                    String newText = change.getControlNewText() ;
+                    if (validDoubleText.matcher(newText).matches()) {
+                        return change ;
+                    } else return null ;
+                }));
+        textField.setText("");
     }
 }
