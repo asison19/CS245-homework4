@@ -162,6 +162,7 @@ public class MainStage extends Application {
 
         bgColorPicker.setOnAction(e -> {
             pane.setStyle("-fx-border-style: solid; -fx-border-width: 2px; -fx-border-color: lightgray; -fx-background-color: #" + colorToHex(bgColorPicker.getValue()));
+            System.out.println("Foo");
         });
 
         // menu bar and its items
@@ -416,7 +417,6 @@ public class MainStage extends Application {
 
                 Sphere sphere = new Sphere(radius);
                 translate(sphere, x, y, z);
-                changeColor(sphere);
                 pane.getChildren().add(sphere);
                 changeProperties(sphere);
                 stage.close();
@@ -435,7 +435,6 @@ public class MainStage extends Application {
                 }
                 Box box = new Box(width, height, depth);
                 translate(box, x, y, z);
-                changeColor(box);
                 pane.getChildren().add(box);
                 changeProperties(box);
                 stage.close();
@@ -454,7 +453,6 @@ public class MainStage extends Application {
                 }
                 Cylinder cylinder = new Cylinder(radius, height);
                 translate(cylinder, x, y, z);
-                changeColor(cylinder);
                 pane.getChildren().add(cylinder);
                 changeProperties(cylinder);
                 stage.close();
@@ -574,12 +572,6 @@ public class MainStage extends Application {
         shape.setScaleZ(shape.getScaleZ() + factor);
     }
 
-    private void changeColor(Shape3D shape) {
-        bgColorPicker.setOnAction(e -> {
-            shape.setMaterial(new PhongMaterial(colorPicker.getValue()));
-        });
-    }
-
     public void save(Shape3D[] shapesList)
     {
         try
@@ -686,7 +678,7 @@ public class MainStage extends Application {
 
     /*
     Set the passed in text field to only contain a double as x.y
-    where x is a 7 digit number, and y is a 4 digit number.
+    where x is a 4 digit number, and y is a 2 digit number.
 
     With regards to setting the x, y, z position, the translate
     will be forced to be within the bounds of the subscene.
@@ -695,7 +687,7 @@ public class MainStage extends Application {
     for more information.
      */
     private void setTextFieldDoubleOnly(TextField textField){
-        final Pattern validDoubleText = Pattern.compile("\\-?\\d{0,7}([\\.]\\d{0,4})?");
+        final Pattern validDoubleText = Pattern.compile("\\-?\\d{0,3}([\\.]\\d{0,2})?");
         textField.setTextFormatter(new TextFormatter<Double>(new DoubleStringConverter(), 0.0,
                 change -> {
                     String newText = change.getControlNewText() ;
