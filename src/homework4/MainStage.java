@@ -408,18 +408,18 @@ public class MainStage extends Application {
                     return;
                 }
 
-                radius = Double.parseDouble(shapeRadius.getText());
+            radius = Double.parseDouble(shapeRadius.getText());
 
-                if(radius == 0) {
-                    showFormNotCompleteAlert();
-                    return;
-                }
+            if(radius == 0) {
+                showFormNotCompleteAlert();
+                return;
+            }
 
-                Sphere sphere = new Sphere(radius);
-                translate(sphere, x, y, z);
-                pane.getChildren().add(sphere);
-                changeProperties(sphere);
-                stage.close();
+            Sphere sphere = new Sphere(radius);
+            translate(sphere, x, y, z);
+            pane.getChildren().add(sphere);
+            changeProperties(sphere);
+            stage.close();
 
             } else if (selectedShape == 1) { // Box
                 if(shapeWidth.getText().equals("") || shapeHeight.getText().equals("") || shapeDepth.getText().equals("")) {
