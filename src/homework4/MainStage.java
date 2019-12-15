@@ -3,10 +3,6 @@
     Contains main method and the primary stage for the application.
 
     TODO
-    menu logic
-    button logic
-    adding shapes
-    controlling shapes
     make things look pretty
 
 */
@@ -57,16 +53,16 @@ public class MainStage extends Application {
     private Label controlBoxLabel, rotateXLabel, rotateYLabel, rotateZLabel, translateXLabel, translateYLabel, translateZLabel, scaleLabel, changeBgColorLabel, changeColorLabel;
     private Slider rotateSliderX, rotateSliderY, rotateSliderZ;
     private TextField translateXTextField, translateYTextField, translateZTextField;
-    private Button translateButton; // once this is clicked, it gets the values of the text fields // TODO valid input checking or just warn user
+    private Button translateButton; // once this is clicked, it gets the values of the text fields
     private Slider scaleSlider;
     final ColorPicker colorPicker = new ColorPicker();
     final ColorPicker bgColorPicker = new ColorPicker();
 
-    private Shape3D thisShape; // TODO still not sure what this is for
-
     // SubScene that has the shapes inside in 3D
     private Pane pane;
     private SubScene subScene;
+    private double subSceneWidth;
+    private double subSceneHeight;
     private Group shapesGroup;
     private PerspectiveCamera camera;
 
@@ -151,7 +147,7 @@ public class MainStage extends Application {
         // sub-scene that contains the shapes (original: 800, 600)
         pane = new Pane();
         shapesGroup = new Group();
-        subScene = new SubScene(pane, 700, 500);
+        subScene = new SubScene(pane, subSceneWidth = 700, subSceneHeight = 500);
         camera = new PerspectiveCamera();
         camera.getTransforms().add(new Translate(0, 0, 0));
 
@@ -277,15 +273,34 @@ public class MainStage extends Application {
 
         // Translate the XYZ position of the shape
         translateButton.setOnAction(actionEvent -> {
+
             if(selectedShape == null)
                 return;
-            selectedShape.setTranslateX(selectedShape.getTranslateX() + Double.parseDouble(translateXTextField.getText()));
-            selectedShape.setTranslateY(selectedShape.getTranslateY() + Double.parseDouble(translateYTextField.getText()));
-            selectedShape.setTranslateZ(selectedShape.getTranslateZ() + Double.parseDouble(translateZTextField.getText()));
+
+            double x, y, z;
+
+            // if there is nothing in the textfield, just default to 0, otherwise parse the text field
+            if(translateXTextField.getText().equals(""))
+                x = 0;
+            else
+                x = Double.parseDouble(translateXTextField.getText());
+            if(translateYTextField.getText().equals(""))
+                y = 0;
+            else
+                y = Double.parseDouble(translateYTextField.getText());
+            if(translateZTextField.getText().equals(""))
+                z = 0;
+            else
+                z = Double.parseDouble(translateZTextField.getText());
+
+            translate(selectedShape, x, y, z);
+//            selectedShape.setTranslateX(selectedShape.getTranslateX() + Double.parseDouble(translateXTextField.getText()));
+//            selectedShape.setTranslateY(selectedShape.getTranslateY() + Double.parseDouble(translateYTextField.getText()));
+//            selectedShape.setTranslateZ(selectedShape.getTranslateZ() + Double.parseDouble(translateZTextField.getText()));
         });
 
         // Change the color of the selected shape
-        colorPicker.setOnAction(actionEvent -> { // TODO make selected shape not turn to CYAN
+        colorPicker.setOnAction(actionEvent -> {
             if(selectedShape == null)
                 return;
             selectedShapeMaterial = new PhongMaterial(colorPicker.getValue());
@@ -354,11 +369,11 @@ public class MainStage extends Application {
         shapes.getItems().addAll("Sphere", "Box", "Cylinder");
 
         VBox vbox = new VBox(20, label,
-                new HBox(40, shapeLabel, shapes),
-                new HBox(20, xLabel, xPosition),
-                new HBox(20, yLabel, yPosition),
-                new HBox(20, zLabel, zPosition),
-                addButton);
+                                new HBox(40, shapeLabel, shapes),
+                                new HBox(20, xLabel, xPosition),
+                                new HBox(20, yLabel, yPosition),
+                                new HBox(20, zLabel, zPosition),
+                                addButton);
         vbox.setPadding(new Insets(30));
         vbox.setAlignment(Pos.TOP_CENTER);
 
@@ -368,33 +383,33 @@ public class MainStage extends Application {
             vbox.getChildren().clear();
             if (n.equals(0)) {
                 vbox.getChildren().addAll(label,
-                        new HBox(40, shapeLabel, shapes),
-                        new HBox(20, xLabel, xPosition),
-                        new HBox(20, yLabel, yPosition),
-                        new HBox(20, zLabel, zPosition),
-                        new HBox(37, radiusLabel, shapeRadius),
-                        addButton);
+                                        new HBox(40, shapeLabel, shapes),
+                                        new HBox(20, xLabel, xPosition),
+                                        new HBox(20, yLabel, yPosition),
+                                        new HBox(20, zLabel, zPosition),
+                                        new HBox(37, radiusLabel, shapeRadius),
+                                        addButton);
             }
             else if (n.equals(1)) {
                 vbox.getChildren().addAll(label,
-                        new HBox(40, shapeLabel, shapes),
-                        new HBox(20, xLabel, xPosition),
-                        new HBox(20, yLabel, yPosition),
-                        new HBox(20, zLabel, zPosition),
-                        new HBox(41, widthLabel, shapeWidth),
-                        new HBox(37, heightLabel, shapeHeight),
-                        new HBox(41, depthLabel, shapeDepth),
-                        addButton);
+                                        new HBox(40, shapeLabel, shapes),
+                                        new HBox(20, xLabel, xPosition),
+                                        new HBox(20, yLabel, yPosition),
+                                        new HBox(20, zLabel, zPosition),
+                                        new HBox(41, widthLabel, shapeWidth),
+                                        new HBox(37, heightLabel, shapeHeight),
+                                        new HBox(41, depthLabel, shapeDepth),
+                                        addButton);
             }
             else if (n.equals(2)) {
                 vbox.getChildren().addAll(label,
-                        new HBox(40, shapeLabel, shapes),
-                        new HBox(20, xLabel, xPosition),
-                        new HBox(20, yLabel, yPosition),
-                        new HBox(20, zLabel, zPosition),
-                        new HBox(37, radiusLabel, shapeRadius),
-                        new HBox(37, heightLabel, shapeHeight),
-                        addButton);
+                                        new HBox(40, shapeLabel, shapes),
+                                        new HBox(20, xLabel, xPosition),
+                                        new HBox(20, yLabel, yPosition),
+                                        new HBox(20, zLabel, zPosition),
+                                        new HBox(37, radiusLabel, shapeRadius),
+                                        new HBox(37, heightLabel, shapeHeight),
+                                        addButton);
             }
             vbox.setPadding(new Insets(30));
             vbox.setAlignment(Pos.TOP_CENTER);
@@ -406,15 +421,19 @@ public class MainStage extends Application {
 
             double x,y,z;
 
-            if(xPosition.getText().equals("")) {
+            // error handling for empty textfields
+            if(xPosition.getText().equals(""))
                 x = 0;
-            } else x = Double.parseDouble(xPosition.getText());
-            if(yPosition.getText().equals("")) {
+            else
+                x = Double.parseDouble(xPosition.getText());
+            if(yPosition.getText().equals(""))
                 y = 0;
-            } else y = Double.parseDouble(yPosition.getText());
-            if(zPosition.getText().equals("")) {
+            else
+                y = Double.parseDouble(yPosition.getText());
+            if(zPosition.getText().equals(""))
                 z = 0;
-            } else z = Double.parseDouble(zPosition.getText());
+            else
+                z = Double.parseDouble(zPosition.getText());
 
             if (selectedShape == 0) { // Sphere
                 if(shapeRadius.getText().equals("")) {
@@ -527,28 +546,61 @@ public class MainStage extends Application {
         });
     }
 
-    private void disableControls(boolean boo) {
-        rotateSliderX.setDisable(boo);
-        rotateSliderY.setDisable(boo);
-        rotateSliderZ.setDisable(boo);
-        scaleSlider.setDisable(boo);
-        translateXTextField.setDisable(boo);
-        translateYTextField.setDisable(boo);
-        translateZTextField.setDisable(boo);
-        translateButton.setDisable(boo);
-        colorPicker.setDisable(boo);
+    /*
+    Disable the selected shape controls of the main scene
+    Controls should be disable when no shape is selected and
+    enabled when a shape is selected.
+     */
+    private void disableControls(boolean b) {
+        rotateSliderX.setDisable(b);
+        rotateSliderY.setDisable(b);
+        rotateSliderZ.setDisable(b);
+        scaleSlider.setDisable(b);
+        translateXTextField.setDisable(b);
+        translateYTextField.setDisable(b);
+        translateZTextField.setDisable(b);
+        translateButton.setDisable(b);
+        colorPicker.setDisable(b);
     }
 
+    /*
+    Moves the shape according to the corresponding x, y, z coordinates.
+    Won't move the shape outside of the bounds according to the center
+    of the shape. TODO find how to make it stay inside the edge according to opposite edge of the shape
+     */
     private void translate(Shape3D shape, double x, double y, double z) {
-        Translate translate = new Translate(x, y, z);
-        shape.getTransforms().add(translate);
+
+        // if moving the shape would make it go out of bounds, then don't move in that direction,
+        // or only move until at the edge
+        if((shape.getTranslateX() + x) > subSceneWidth) {
+            x = subSceneWidth - shape.getTranslateX();
+            translateXTextField.setText(Double.toString(x));
+        } else if ((shape.getTranslateX() + x) < 0 ) {
+            x = -(shape.getTranslateX());
+            translateXTextField.setText(Double.toString(x));
+        }
+        if((shape.getTranslateY() + y) > subSceneHeight) {
+            y = subSceneHeight - shape.getTranslateY();
+            translateYTextField.setText(Double.toString(y));
+        } else if((shape.getTranslateY() + y) < 0) {
+            y = -(shape.getTranslateY());
+            translateYTextField.setText(Double.toString(y));
+        }
+        if((shape.getTranslateZ() + z) < 0) {
+            z = -(shape.getTranslateZ());
+            translateZTextField.setText(Double.toString(z));
+        }
+
+        System.out.println(shape.getTranslateX() + " x: " + x);
+        shape.setTranslateX(shape.getTranslateX() + x);
+        shape.setTranslateY(shape.getTranslateY() + y);
+        shape.setTranslateZ(shape.getTranslateZ() + z);
     }
 
     private void scale(Shape3D shape, double factor) {
         shape.setScaleX(shape.getScaleX() + factor);
         shape.setScaleY(shape.getScaleY() + factor);
         shape.setScaleZ(shape.getScaleZ() + factor);
-        System.out.println(factor);
     }
 
     private void changeColor(Shape3D shape) {
