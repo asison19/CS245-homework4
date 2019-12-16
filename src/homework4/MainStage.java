@@ -18,7 +18,6 @@ import java.util.regex.Pattern;
 import javafx.application.Application;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
-import javafx.geometry.Point3D;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -37,7 +36,6 @@ import javafx.scene.shape.Cylinder;
 import javafx.scene.shape.Shape3D;
 import javafx.scene.shape.Sphere;
 import javafx.scene.transform.Rotate;
-import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -582,9 +580,13 @@ public class MainStage extends Application {
 
             writer.close();
         }
-        catch(FileNotFoundException FNFE)
+        catch(NullPointerException NPE)
         {
-
+            System.out.println("Load File Aborted");
+        }
+        catch (FileNotFoundException e)
+        {
+            System.out.println("File Not Found");
         }
     }
 
@@ -599,42 +601,44 @@ public class MainStage extends Application {
             while(reader.hasNext())
             {
             	String in = reader.next();
+            	
+            	Shape3D shape = null;
+            	
             	if(in.equals("S"))
             	{
             		Sphere S = new Sphere();
             		
-            		S.setTranslateX(reader.nextDouble()); S.setTranslateY(reader.nextDouble()); S.setTranslateZ(reader.nextDouble());
-            		double scale = reader.nextDouble();
-            		S.setScaleX(scale); S.setScaleY(scale); S.setScaleZ(scale);
             		S.setRadius(reader.nextDouble());
             		
-            		pane.getChildren().add(S);
+            		shape = S;
             	}
             	else if(in.equals("C"))
             	{
             		Cylinder C = new Cylinder();
             		
-            		C.setTranslateX(reader.nextDouble()); C.setTranslateY(reader.nextDouble()); C.setTranslateZ(reader.nextDouble());
-            		double scale = reader.nextDouble();
-            		C.setScaleX(scale); C.setScaleY(scale); C.setScaleZ(scale);
             		C.setRadius(reader.nextDouble()); C.setHeight(reader.nextDouble());
             		
-            		pane.getChildren().add(C);
+            		shape = C;
             	}
             	else if(in.equals("B"))
             	{
             		Box B = new Box();
             		
-            		B.setTranslateX(reader.nextDouble()); B.setTranslateY(reader.nextDouble()); B.setTranslateZ(reader.nextDouble());
-            		double scale = reader.nextDouble();
-            		B.setScaleX(scale); B.setScaleY(scale); B.setScaleZ(scale);
             		B.setWidth(reader.nextDouble()); B.setHeight(reader.nextDouble()); B.setDepth(reader.nextDouble());
             		
-            		pane.getChildren().add(B);
+            		shape = B;
             	}
             	else
             		reader.nextLine();
+            	
+            	shape.setTranslateX(reader.nextDouble()); shape.setTranslateY(reader.nextDouble()); shape.setTranslateZ(reader.nextDouble());
+        		double scale = reader.nextDouble();
+        		shape.setScaleX(scale); shape.setScaleY(scale); shape.setScaleZ(scale);
+        		
+        		pane.getChildren().add(shape);
             }
+            
+            reader.close();
 
         }
         catch(NullPointerException NPE)
@@ -650,17 +654,13 @@ public class MainStage extends Application {
     public String printShapeData(Shape3D shape)
     {
         String deliverables = "";
-        
-        //X, Y, Z, Scaling
-        deliverables = deliverables.concat(Double.toString(shape.getTranslateX()) +" "+ Double.toString(shape.getTranslateY()) +" "+ Double.toString(shape.getTranslateZ()) +" "+
-                Double.toString(shape.getScaleX()) + " ");
         	
         if(shape instanceof Box)
         {
             Box B = (Box)shape;
             
             //B Tag for Box
-            deliverables = "B " + deliverables + " ";
+            deliverables = "B " + deliverables;
             
             //Width Height & Depth
             deliverables = deliverables.concat(Double.toString(B.getWidth()) +" "+ Double.toString(B.getHeight()) +" "+ Double.toString(B.getDepth()) + " ");  
@@ -673,7 +673,7 @@ public class MainStage extends Application {
             //S Tag for Sphere
             deliverables = "S " + deliverables;
             //Radius
-            deliverables = deliverables.concat(Double.toString(S.getRadius()));
+            deliverables = deliverables.concat(Double.toString(S.getRadius()) + " ");
             
         }
         else if(shape instanceof Cylinder)
@@ -684,9 +684,13 @@ public class MainStage extends Application {
             deliverables = "C " +deliverables;
             
             //Radius and Height
-            deliverables = deliverables.concat(Double.toString(C.getRadius()) +" "+ Double.toString(C.getHeight()));
+            deliverables = deliverables.concat(Double.toString(C.getRadius()) +" "+ Double.toString(C.getHeight()) + " ");
            
         }
+        
+      //X, Y, Z, Scaling
+        deliverables = deliverables.concat(Double.toString(shape.getTranslateX()) +" "+ Double.toString(shape.getTranslateY()) +" "+ Double.toString(shape.getTranslateZ()) +" "+
+                Double.toString(shape.getScaleX()) + " ");
         	
         return deliverables;
     }
