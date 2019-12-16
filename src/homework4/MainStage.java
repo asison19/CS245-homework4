@@ -594,14 +594,46 @@ public class MainStage extends Application {
         {
             FileChooser FC = new FileChooser();
             File saveFile = FC.showOpenDialog(stage);
-
-
             Scanner reader = new Scanner(saveFile);
-            String line;
+            
             while(reader.hasNext())
             {
-                line = reader.nextLine();
-                System.out.println(line);
+            	String in = reader.next();
+            	if(in.equals("S"))
+            	{
+            		Sphere S = new Sphere();
+            		
+            		S.setTranslateX(reader.nextDouble()); S.setTranslateY(reader.nextDouble()); S.setTranslateZ(reader.nextDouble());
+            		double scale = reader.nextDouble();
+            		S.setScaleX(scale); S.setScaleY(scale); S.setScaleZ(scale);
+            		S.setRadius(reader.nextDouble());
+            		
+            		pane.getChildren().add(S);
+            	}
+            	else if(in.equals("C"))
+            	{
+            		Cylinder C = new Cylinder();
+            		
+            		C.setTranslateX(reader.nextDouble()); C.setTranslateY(reader.nextDouble()); C.setTranslateZ(reader.nextDouble());
+            		double scale = reader.nextDouble();
+            		C.setScaleX(scale); C.setScaleY(scale); C.setScaleZ(scale);
+            		C.setRadius(reader.nextDouble()); C.setHeight(reader.nextDouble());
+            		
+            		pane.getChildren().add(C);
+            	}
+            	else if(in.equals("B"))
+            	{
+            		Box B = new Box();
+            		
+            		B.setTranslateX(reader.nextDouble()); B.setTranslateY(reader.nextDouble()); B.setTranslateZ(reader.nextDouble());
+            		double scale = reader.nextDouble();
+            		B.setScaleX(scale); B.setScaleY(scale); B.setScaleZ(scale);
+            		B.setWidth(reader.nextDouble()); B.setHeight(reader.nextDouble()); B.setDepth(reader.nextDouble());
+            		
+            		pane.getChildren().add(B);
+            	}
+            	else
+            		reader.nextLine();
             }
 
         }
