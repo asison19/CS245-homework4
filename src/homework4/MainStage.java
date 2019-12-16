@@ -16,10 +16,12 @@ import java.util.Scanner;
 import java.util.regex.Pattern;
 
 import javafx.application.Application;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Point3D;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
 import javafx.scene.SubScene;
@@ -86,16 +88,6 @@ public class MainStage extends Application {
     public static void main(String[] args)
     {
         launch(args);
-    	/*MainStage MS = new MainStage();
-
-    	Shape3D[] shapeList = new Shape3D[5];
-    	shapeList[0] = new Box(10,10,10);
-    	shapeList[1] = new Box(15,25,35);
-    	shapeList[2] = new Sphere(5);
-    	shapeList[3] = new Cylinder(100, 50);
-    	shapeList[4] = new Cylinder(50, 50);
-
-    	MS.save(shapeList);*/
     }
 
     @Override
@@ -171,9 +163,9 @@ public class MainStage extends Application {
         saveMenuItem = new MenuItem("Save");
         openMenuItem = new MenuItem("Open");
 
-        /*saveMenuItem.setOnAction(event->{
-        	save();
-        });*/
+        saveMenuItem.setOnAction(event->{
+        	save(primaryStage);
+        });
 
         openMenuItem.setOnAction(event->{
             load(primaryStage);
@@ -572,14 +564,21 @@ public class MainStage extends Application {
         shape.setScaleZ(shape.getScaleZ() + factor);
     }
 
-    public void save(Shape3D[] shapesList)
+    public void save(Stage stage)
     {
-        try
+        ObservableList<Node> listOfShapes = pane.getChildren();
+    	try
         {
-            PrintWriter writer = new PrintWriter(new File("SaveFile.txt"));
+    		FileChooser FC = new FileChooser();
+            PrintWriter writer = new PrintWriter(FC.showSaveDialog(stage));
 
-            for(int i=0; i<shapesList.length; ++i)
-                writer.append(printShapeData(shapesList[i])+"\n");
+            for(int i=0; i<listOfShapes.size(); ++i)
+            	if(listOfShapes.get(i) instanceof Shape3D)
+            	{
+            		Shape3D currentShape = (Shape3D)listOfShapes.get(i);
+            		writer.append(printShapeData(currentShape) + "\n");
+            	}
+                
 
             writer.close();
         }
@@ -591,10 +590,9 @@ public class MainStage extends Application {
 
     public void load(Stage stage)
     {
-        FileChooser FC = null;
         try
         {
-            FC = new FileChooser();
+            FileChooser FC = new FileChooser();
             File saveFile = FC.showOpenDialog(stage);
 
 
@@ -620,26 +618,44 @@ public class MainStage extends Application {
     public String printShapeData(Shape3D shape)
     {
         String deliverables = "";
+        
+        //X, Y, Z, Scaling
         deliverables = deliverables.concat(Double.toString(shape.getTranslateX()) +" "+ Double.toString(shape.getTranslateY()) +" "+ Double.toString(shape.getTranslateZ()) +" "+
-                Double.toString(shape.getScaleX()) +" "+ Double.toString(shape.getScaleY()) +" "+ Double.toString(shape.getScaleZ())+" ");
+                Double.toString(shape.getScaleX()) + " ");
+        	
         if(shape instanceof Box)
         {
             Box B = (Box)shape;
-            deliverables = deliverables.concat(Double.toString(B.getWidth()) +" "+ Double.toString(B.getHeight()) +" "+ Double.toString(B.getDepth()));
-            deliverables = "B " + deliverables;
+            
+            //B Tag for Box
+            deliverables = "B " + deliverables + " ";
+            
+            //Width Height & Depth
+            deliverables = deliverables.concat(Double.toString(B.getWidth()) +" "+ Double.toString(B.getHeight()) +" "+ Double.toString(B.getDepth()) + " ");  
+            
         }
         else if(shape instanceof Sphere)
         {
             Sphere S = (Sphere)shape;
-            deliverables = deliverables.concat(Double.toString(S.getRadius()));
+            
+            //S Tag for Sphere
             deliverables = "S " + deliverables;
+            //Radius
+            deliverables = deliverables.concat(Double.toString(S.getRadius()));
+            
         }
         else if(shape instanceof Cylinder)
         {
-            Cylinder C = (Cylinder)shape;
-            deliverables = deliverables.concat(Double.toString(C.getRadius()) +" "+ Double.toString(C.getHeight()));
+            Cylinder C = (Cylinder)shape; 
+            
+            //C Tag for Cylinder
             deliverables = "C " +deliverables;
+            
+            //Radius and Height
+            deliverables = deliverables.concat(Double.toString(C.getRadius()) +" "+ Double.toString(C.getHeight()));
+           
         }
+        	
         return deliverables;
     }
 
