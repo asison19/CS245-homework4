@@ -636,9 +636,11 @@ public class MainStage extends Application {
         		shape.setScaleX(scale); shape.setScaleY(scale); shape.setScaleZ(scale);
         		
         		pane.getChildren().add(shape);
+        		changeProperties(shape);
             }
             
             reader.close();
+            
 
         }
         catch(NullPointerException NPE)
